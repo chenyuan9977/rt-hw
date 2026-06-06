@@ -1,1 +1,155 @@
 
+Homework 7
+1. write out the optimized Singleton Version and explain each line of code
+public final class Singleton {
+    
+    private Singleton() {
+        if (Holder.INSTANCE != null) {
+            throw new IllegalStateException("Instance already exists!");
+        }
+    }
+
+    public static Singleton getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    private static class Holder {
+        private static final Singleton INSTANCE = new Singleton();
+    }
+}
+Line-by-Line Explanation
+public final class Singleton {
+Declares a public class named Singleton. Making it final prevents subclassing, which could otherwise compromise the singleton property.
+private Singleton() {
+The constructor is marked private so that no external code can instantiate this class using the new keyword.
+if (Holder.INSTANCE != null) { throw new IllegalStateException("..."); }
+An advanced safety check. It prevents malicious or accidental creation of a second instance via Java Reflection. If someone tries to force access to the private constructor, this throws an error.
+public static Singleton getInstance() {
+The global access point for the single instance. It is static, meaning you call it directly via Singleton.getInstance().
+return Holder.INSTANCE;
+Returns the single instance managed by the inner static class.
+private static class Holder {
+A private nested static class. The JVM will not load this class into memory when Singleton is first loaded. It only loads when getInstance() is called and references Holder, achieving lazy initialization.
+private static final Singleton INSTANCE = new Singleton();
+Instantiates the unique Singleton object. Because class loading is guaranteed by the JVM to be thread-safe, this instantiation is 100% thread-safe without needing expensive synchronized keywords.
+
+
+2. what is reflection
+In plain terms, Reflection is Java’s ability to "look in the mirror" and inspect or modify its own behavior at runtime.
+Normally, code behavior is set in stone at compile time. With Reflection, your code can dynamically analyze a class, find out what fields, methods, and constructors it has, and even force access to things that 
+are marked private. It is incredibly powerful but acts as a double-edged sword: it is heavily used by frameworks like Spring and Hibernate to magically wire components together, but it bypasses type-safety and
+carries a minor performance cost.
+
+
+3. what are http status code, 200/ 201/202/ 204/ 307/ 301/ 400/ 401/ 403/ 404/ 500, explain them by your own words
+2xx Success (Everything went smoothly)
+200 OK: The standard "Success!" code. The server got the request and sent back the data you asked for.
+201 Created: Success, and something new was built. Usually happens after a POST request (e.g., you successfully registered a new account).
+202 Accepted: The server heard you and agreed to do the job, but it hasn't finished yet. It's used for long, asynchronous tasks background processes.
+204 No Content: Success, but there is nothing to send back in the body. You updated or deleted something, and the job is done.
+3xx Redirection (You need to look elsewhere)
+301 Moved Permanently: The URL you requested has changed for good. Your browser will automatically go to the new address from now on.
+307 Temporary Redirect: The URL is currently somewhere else right now, but it might come back later. Crucially, the browser must use the exact same HTTP method (like POST) to hit the new location.
+4xx Client Errors (You made a mistake)
+400 Bad Request: The server can't understand what you want because the syntax or data you sent is messed up.
+401 Unauthorized: You forgot your ID. You aren't logged in, or your security token is missing/expired.
+403 Forbidden: The server knows who you are, but you don't have permission to look at this. (e.g., a standard user trying to access an Admin panel).
+404 Not Found: The classic error. The server cannot find the specific webpage or resource you requested.
+5xx Server Errors (The server messed up)
+500 Internal Server Error: A generic catch-all. The server ran into an unexpected problem or a crash in its code and couldn't finish your request.
+
+
+4. what is http  
+HTTP (HyperText Transfer Protocol) is the universal language of the World Wide Web. It is a stateless, application-layer protocol that determines exactly how messages (requests and responses) are formatted
+and transmitted across the internet. Whenever you type a URL into a browser, your browser uses HTTP to request data from a web server, which then ships the data back to you using the same protocol.
+
+
+5. what is get, post, put, delete, patch method
+GET: Used to read or retrieve data. It should never alter data on the server.
+POST: Used to create new data. The data is wrapped up inside the body of the request.
+PUT: Used to replace an existing resource entirely. If the resource doesn't exist, it usually creates it.
+DELETE: Used to remove a specific resource from the server.
+PATCH: Used to make a partial update to a resource. You only send the specific fields you want to change.
+
+
+6. post vs patch
+POST creates a completely brand-new entity every single time you call it.
+PATCH modifies existing data by applying a small fix or update to a specific part of it (like changing just a user's phone number).
+
+
+7. post vs put
+POST is used when you don't know the exact ID of the resource yet; the server creates it and assigns the ID. Calling it 5 times creates 5 separate records.
+PUT is used when you know the exact location or ID of the resource. You supply the entire updated record. If you run it 5 times, the first one updates it and the next 4 just overwrite it with identical data.
+
+
+8. What is idempotent, which http method is idempotent?
+An HTTP method is idempotent if making identical requests multiple times produces the exact same side-effects on the server as making it a single time. In short: repeating the request won't change the state of
+the database any further.
+Idempotent or not:
+GET: Yes. Reading data multiple times doesn't change anything.
+PUT: Yes. Overwriting data with the exact same record multiple times results in the exact same database state.
+DELETE: Yes. Deleting something once deletes it. Deleting it again keeps it deleted (even if the response code changes from 200 to 404, the server state remains unchanged).
+OPTIONS / HEAD: Yes. These only read metadata.
+POST: No. If you hit "Submit Order" five times, you might get charged five times and create five orders.
+PATCH: Generally No. While it can be designed to be idempotent, it isn't guaranteed by definition. For example, if a PATCH request says "age": age + 1, repeating it will continuously alter the server state.
+
+Homework8
+1. TCP 3 way handshaking
+The 3-way handshake is the process TCP uses to establish a reliable connection between a client and a server before they actually start swapping data. It ensures both sides are ready to talk and listen.
+Step 1: SYN (Synchronize) — The client sends a packet with a SYN flag set to the server. It essentially says: "Hey, I want to talk to you. Here is my starting sequence number."
+Step 2: SYN-ACK (Synchronize-Acknowledge) — The server receives it and replies with a packet containing both SYN and ACK flags. It says: "I hear you! I acknowledge your request. I also want to establish a connection
+with you—here is my starting sequence number."
+Step 3: ACK (Acknowledge) — The client receives the reply and sends a final ACK packet back. It says: "Got it! Let's start talking." The connection is now established.
+
+
+2. TCP vs UDP
+TCP (Transmission Control Protocol) — The Reliable, Connection-Oriented Protocol
+Connection Mechanism: TCP is strictly connection-oriented. Before any data can be transferred, it forces the client and server to establish a dedicated communication channel via the "3-way handshake."
+Reliability: It is 100% reliable. TCP acts like a premium courier service; it tracks every single packet by assigning a sequence number. If a packet gets lost in transit, TCP automatically requests a retransmission. 
+If packets arrive out of order, it reassembles them correctly. It also manages flow and congestion control so the sender doesn't overwhelm the receiver.
+Speed and Overhead: It is slower. The constant tracking, acknowledgments (ACKs), error-checking, and large packet header size create a noticeable amount of network overhead.
+Use Cases: Web browsing (HTTP/HTTPS), Email (SMTP), and File Transfers (FTP). In these scenarios, losing even a single byte of data can corrupt an entire file or ruin a webpage.
+
+UDP (User Datagram Protocol) — The Fast, Connectionless Protocol
+Connection Mechanism: UDP is entirely connectionless. It does not perform a handshake. It simply packages the data and fires it over the network immediately, regardless of whether the receiver is active or ready.
+Reliability: It is unreliable. UDP operates on a "best-effort" delivery model. It does not track packets, does not notify the sender if a packet is lost, and does not correct the order of arrival. If a packet drops, it is gone forever.
+Speed and Overhead: It is extremely fast. Because it cuts out all flow control, error checking, and acknowledgment loops, it has minimal latency and a very lightweight packet header.
+Use Cases: Live video streaming, online multiplayer gaming, video conferencing (VoIP), and DNS lookups. In these environments, real-time speed is far more critical than perfect data accuracy. Missing a single frame of a live video is 
+unnoticeable, but pausing the entire video stream to wait for a retransmitted packet would ruin the user experience.
+
+
+3. what is Tomcat
+Tomcat is an open-source web server and Java Servlet Container. Standard web servers only understand static files (HTML, CSS, images). Tomcat acts as an engine that can actually execute Java backend code (Servlets and JSPs),
+convert that execution into web-friendly format, and serve it out dynamically to users over HTTP.
+
+
+4. what are the basic components for tomcat
+Server: Represents the entire Tomcat JVM instance. It controls the lifecycle of the whole runtime container.
+Service: A structural wrapper inside the Server that binds one or more Connectors to a single Engine.
+Connector: The component that handles the incoming network traffic. It listens on a specific port (like 8080), receives requests from browsers, and hands them off to the engine.
+Engine: The core request-processing heart of Tomcat. It takes the requests from the Connector and figures out which web application should handle them.
+Host: Represents a virtual host (like localhost or example.com), allowing a single Tomcat instance to manage multiple domains.
+Context: Represents an individual web application running inside a Host.
+
+
+5. what is web server
+A Web Server is computer software (and underlying hardware) that stores web site assets and delivers them to end-users across the internet via HTTP. At its simplest, when a browser requests a file, a web server finds that 
+static file on its hard drive and serves it back. Modern web servers also act as reverse proxies, routing traffic to application servers.
+
+
+6. what is 3 tire architecture
+3-Tier Architecture is a software design pattern that breaks an application into three distinct, decoupled layers to make code easier to maintain, scale, and secure.
+Presentation Tier (Frontend): The user interface. This is what the user interacts with (e.g., HTML/CSS/JavaScript webpages, mobile UI). It talks to the next layer via API calls.
+Application/Logic Tier (Backend): The brains of the operation. This layer processes business rules, runs calculations, evaluates conditions, and decides what data needs to move where (e.g., Java/Spring Boot application running on Tomcat).
+Data Tier (Database): The storage system. It stores, retrieves, and updates application data securely (e.g., MySQL, PostgreSQL).
+
+
+7. what is OSI Model, what is each layer doing
+The OSI (Open Systems Interconnection) Model is a conceptual framework that standardizes how data moves across a network, splitting the process into 7 distinct layers.
+Layer 7: Application — Where the user interacts with network applications (e.g., HTTP, FTP, SMTP protocols).
+Layer 6: Presentation — Translates, encrypts, and compresses data so it's readable by the application layer (e.g., SSL/TLS, JSON/XML parsing).
+Layer 5: Session — Manages, maintains, and terminates communication sessions between two endpoints.
+Layer 4: Transport — Coordinates reliable data transfer, flow control, and error correction (e.g., TCP and UDP live here).
+Layer 3: Network — Finds the path to move data packets from one device to another across different networks (e.g., IP routing and routers live here).
+Layer 2: Data Link — Manages node-to-node data transfer on the same local network, handling physical addressing (e.g., MAC addresses and network switches).
+Layer 1: Physical — The literal hardware level. Deals with transmitting raw bits over cables, fiber optics, or radio waves.
