@@ -153,3 +153,17 @@ Layer 4: Transport — Coordinates reliable data transfer, flow control, and err
 Layer 3: Network — Finds the path to move data packets from one device to another across different networks (e.g., IP routing and routers live here).
 Layer 2: Data Link — Manages node-to-node data transfer on the same local network, handling physical addressing (e.g., MAC addresses and network switches).
 Layer 1: Physical — The literal hardware level. Deals with transmitting raw bits over cables, fiber optics, or radio waves.
+
+
+
+Mock practice:
+How to handle race condition? 
+Thread lifecycle / Thread states
+What is Optional in Java and how can you use it? (Java 8 language/library feature)
+S3 Link: https://rt-celine.s3.us-east-2.amazonaws.com/Week2MockingMissingQ.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEPT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJIMEYCIQCh8rwGIbxfKxyM9vPgO7v4DjZSVHnHeeDfiSEhYNUg%2FQIhAJgj%2B2xuDUVi8J0s4kuQZnmhv0EBIxGSzBukzBHUao7OKr4DCL3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMMjE3MzQzNTA1MjEwIgx5mSZZ6J8K8XtXtS8qkgMhQiEE9sAbo0U6D9pnnOKM%2F5O8kCIMm8kUPeV5JkoahFlkLxkk4xTFgoMtq%2F9ZIE8YfJntxs%2Fu%2FpF1BngKT%2FnAwiKsvZAvdUaySuUZZjCBIBXMM7XY%2BO5n7XEJ%2FtBABoMRKy4iMCielCmOCvof4GBefjuez3TnZ8%2FahB3GYPjZPRyAGBHMlPZKmf%2FPxWAB3i5l1a8baKExuBSjeB4%2FOAeR8rtm%2FFAhST3hvZNBq9nRjrz2iURkvdTbyjNUUtFIPh7U640YVH7bR1SmzZE0WG9Y101evxPccEG%2FnDkv55ddnn56Trxsb43eprZ%2F10Dwim3oyLOXBBWA%2FHLm52WxPGcKyIMdLB%2BIsRstJisGcUKXaUJUri9hOBW9oOegsOVDBf4wgchYH4uo8zEeTST2%2BjyN3tJ5JV%2By2LN9XkgvXP6KvJB0TrAgr27RbIwXk16cvKAB0KfO3dDqC7ebC%2Bi9cPRhMdvXo5YfVJfR8VJC%2FNze0%2BR7L4L5SYQGwAXPcwg4%2B%2B%2BvcajC2DnF5gFo2%2BRloqHwo5owy7ic0QY63QKHG%2F4%2By8p1CulnHIl2ng9z3R7N1blXlZDPsi5qWTw0iMpgPNSGcWlTbqoVxBFKksYgW6QZCO876quAi1%2FIg4LNzCxt18%2B8TJsdYcmxUKuHo3xPbMcZ8Q5JCFktDrYbTBNh1MTO1Zs6ukPAOXPzEOq2W29mWvKPMwg4VOE8%2FFmsYrd%2BRuVdvH894duyFwxQ0JTwGld6%2FBc5sgI4EOBtVFh0Hng8AIvZ2m0AhlixQITqDjgkr71sutnQjSTRQtUx4pxNVQQ7E%2BRaRUfac23hVQzWgoLFt3ISLFOMqDHUFUUGdhALN3tN5VxP08AMKaTHqwf%2BXHiG13xeMcZDzHuXynHecrSNFKHY%2ByrwYRHvA2d3mxEqnsOMwe6K5xAW8YfzBAMY%2F%2FLbmhKV546FF%2Fov8OrC9mlxHZfVxmZL0H5qnlQkkKBVa0Lu2RVVK01ibqsaUabC%2FANhwgG%2FUKpu3lKx&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATFGVOWM5HM4B7UUB%2F20260608%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20260608T194958Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=f79bfd8ba17d9cc685d7c275e07d1d8eff8f5065f4d1acfab379bafc1df5aac1 
+
+
+
+
+
+
