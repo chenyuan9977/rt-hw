@@ -1,1 +1,12 @@
 
+what is AOP
+what is JointPoint and Aspect in AOP
+what is Aspect, joinpoint, pointcut, advice, target
+ApplicationContext vs BeanFactory
+How is Spring MVC Working Flow 
+how does @Autowire work
+@Autowire and @Qualifer
+2 use cases for @PostConstruct and @PreDestroy
+
+Link for S3: 
+Link for AOP practice: https://github.com/chenyuan9977/StudentManagementProjectCeline 
