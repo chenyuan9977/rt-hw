@@ -1,12 +1,180 @@
 
-what is AOP
-what is JointPoint and Aspect in AOP
-what is Aspect, joinpoint, pointcut, advice, target
-ApplicationContext vs BeanFactory
-How is Spring MVC Working Flow 
-how does @Autowire work
-@Autowire and @Qualifer
-2 use cases for @PostConstruct and @PreDestroy
+HW10:
+1. what is AOP
+AOP stands for Aspect-Oriented Programming. It is a programming paradigm that complements OOP by allowing you to modularize cross-cutting concerns—such
+as logging, security, and transaction management—separately from your core business logic. It works by 'weaving' these concerns into the code without 
+modifying the business logic itself.
 
-Link for S3: 
+2. what is JointPoint and Aspect in AOP
+JoinPoint: Represents a specific point during the execution of a program, such as a method call or an exception being thrown. It is a point where you 
+can plug in an aspect.
+Aspect: A modular unit that encapsulates a cross-cutting concern. It is the implementation of the logic (like a logging module) that you want to apply 
+across multiple places in your application.
+
+3. what is Aspect, joinpoint, pointcut, advice, target
+Aspect: The modularized cross-cutting concern (e.g., LoggingAspect).
+JoinPoint: Any point in the execution (e.g., any method execution).
+Pointcut: A predicate that matches which JoinPoints should be advised. It defines the 'where' (e.g., 'all methods in the service package').
+Advice: The action taken at a specific JoinPoint (e.g., Before, After, Around). It defines the 'what' and 'when'.
+Target: The actual object being advised (the business class).
+
+4. ApplicationContext vs BeanFactory
+BeanFactory: The most basic container providing basic DI support. It is lazy-loading (beans are instantiated only when requested).
+
+ApplicationContext: The advanced version of BeanFactory. It includes all BeanFactory features plus enterprise-ready features like AOP integration, 
+internationalization (i18n), and event publication. It is eager-loading (instantiates all singleton beans at startup). In most Spring applications, 
+we use ApplicationContext.
+
+5. How is Spring MVC Working Flow 
+The DispatcherServlet receives the HTTP request.
+It asks the HandlerMapping to find the correct Controller.
+The DispatcherServlet calls the Controller, which executes business logic and returns a ModelAndView (or a response body).
+If a view is needed, the ViewResolver resolves the view name into an actual view object.
+The view is rendered, and the final response is returned to the user.
+
+6. how does @Autowire work
+@Autowired uses Spring’s BeanPostProcessor (specifically AutowiredAnnotationBeanPostProcessor). When the container initializes, it scans for the 
+@Autowired annotation, performs Dependency Injection by looking up the required bean type in the container, and injects it into the target field, 
+constructor, or setter method using reflection.
+
+7. @Autowire and @Qualifer
+@Autowired: Injects dependencies based on type.
+@Qualifier: Used when multiple beans of the same type exist. It acts as a tie-breaker, allowing you to specify the exact bean name to be injected 
+to avoid NoUniqueBeanDefinitionException.
+
+8. 2 use cases for @PostConstruct and @PreDestroy
+@PostConstruct: Used for initialization logic after dependency injection is complete (e.g., initializing a cache, validating configuration, or 
+establishing a database connection).
+@PreDestroy: Used for cleanup logic before the bean is destroyed by the container (e.g., closing file handles, releasing resources, or shutting 
+down an executor service).
+
+Mocok pratice:
+1. Recursion vs. Iteration(divided and conquer)
+While recursion is the natural choice for Divide and Conquer because it maps directly to the problem's mathematical structure and makes code 
+significantly easier to read and maintain, I prefer iteration if the problem requires deep recursion where I anticipate stack limitations.
+In production code, if the depth of recursion is predictable and moderate, I choose recursion for readability. If I am building a high-performance 
+library where stack depth might exceed JVM limits, I would consider converting the recursive logic into an iterative one by using an explicit 
+Deque to manage the sub-problems manually.
+
+2. LinkedHashMap vs. HashMap(Key-value/insertion order or not)
+The primary difference lies in the ordering of elements.
+HashMap does not guarantee any order of its entries; it is optimized for high-performance retrieval and insertion using hash buckets.
+LinkedHashMap, on the other hand, extends HashMap and maintains a doubly-linked list that runs through all of its entries. This allows it to 
+preserve the insertion order by default. Additionally, LinkedHashMap can be configured to maintain access order, which makes it an ideal data 
+structure for implementing LRU caches.
+In summary, I use HashMap by default for better memory efficiency, and switch to LinkedHashMap only when the requirement specifies that the 
+iteration order must match the insertion or access order.
+
+3. Grouping People by Age Link<People> list ->stream API /for loop -> list.stream().collect(Collectors.groupingBy(Person::getAge))
+In modern Java (8+), the most elegant and standard way to achieve this is by using the Stream API combined with Collectors.groupingBy.
+You can simply write: people.stream().collect(Collectors.groupingBy(Person::getAge)).
+This method creates a Map<Integer, List<Person>> in a single statement. It is much cleaner and less error-prone than the traditional loop approach.
+If I were using a version prior to Java 8, I would use a for-each loop with map.computeIfAbsent(age, k -> new ArrayList<>()).add(p), which is the 
+idiomatic way to handle missing keys efficiently.
+
+4. New Features in Java 8 11 17 21
+In my view, Java’s evolution has been focused on developer productivity and scalability. Each LTS release has added specific tools to solve the 
+challenges of its time:
+Java 8 revolutionized the language by introducing Lambda expressions and the Stream API, enabling functional programming patterns that simplified 
+collection processing.
+Java 11 focused on modernization and developer convenience, bringing in the standardized HTTP Client API and local-variable type inference (var), 
+which reduced boilerplate code significantly.
+Java 17 improved maintainability and data modeling with the introduction of Records for immutable data carriers and Sealed Classes to restrict class 
+hierarchies, alongside pattern matching for instanceof.
+Java 21 is a game-changer with Virtual Threads, which finally solves the throughput limitations of traditional thread-per-request models by allowing 
+millions of lightweight threads to run concurrently.
+To summarize, these incremental updates have consistently pushed Java toward becoming more concise, type-safe, and highly scalable for modern 
+cloud-native architectures.
+
+5. Writing REST API in Spring Boot
+To design a robust REST API in Spring Boot, I follow a standard layered architecture:
+Controller Layer: I use @RestController to handle HTTP requests. I map endpoints using @GetMapping, @PostMapping, etc., and use ResponseEntity to return 
+appropriate HTTP status codes (like 200 OK or 201 Created).
+Service Layer: This is where the business logic resides. By keeping it separated from the controller, I ensure that the code is testable and maintainable.
+Repository Layer: I leverage Spring Data JPA, which significantly reduces boilerplate code for database interactions.
+For API design, I strictly follow RESTful conventions: using nouns for resource naming, using appropriate HTTP methods (GET, POST, PUT, DELETE), 
+and ensuring that the API is stateless. I also implement global exception handling using @ControllerAdvice to ensure consistent error responses across the
+entire application.
+
+6. How did you debug?(check the log for that description(http status, log error/exception)->request -> reproduce(prod)->dev(request payload + postman + 
+local intelliJ) -> debug + breakpoint
+My debugging process is highly structured. When a production issue is reported, I don't jump straight into the code.
+First, I examine the logs and metrics to identify the HTTP status codes and the specific exception stack traces. This tells me 'what' happened and 'where' 
+it occurred.
+Second, I extract the exact request payload that triggered the failure. I then aim to reproduce the issue in my local environment or a sandbox using Postman,
+feeding it the captured payload to see if the error persists.
+Once reproduced, I use the IntelliJ debugger to set breakpoints at the point of failure. This allows me to inspect the object states, call stacks, and logical
+flows in real-time. If it's a performance-related issue, I would further use a profiler (like VisualVM or JProfiler) to analyze memory heaps or thread contention.
+By following this methodical approach—from log analysis to local reproduction and breakpoint debugging—I minimize the time taken to root-cause issues while 
+ensuring the fix I implement is precise.
+
+7. Design the locking schema so that when a thread call method1(), it needs to until some other thread call method2()
+To implement this using wait() and notify(), I use a private lock object to manage the state.
+State Management: I define a boolean flag isMethod2Called.
+The Wait Logic: In method1, I wrap the wait() call inside a synchronized block. Crucially, I use a while loop to check the flag: while (!isMethod2Called) 
+{ lock.wait(); }. This is essential to prevent spurious wakeups.
+The Notify Logic: In method2, I update the flag to true and call notify() within a synchronized block to signal the waiting threads.
+Using a while loop instead of an if statement is a best practice here to ensure that the condition is re-validated after the thread is awakened.
+
+Link for S3: https://rt-celine.s3.us-east-2.amazonaws.com/6.9mockPractice.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjECUaCXVzLWVhc3QtMiJGMEQCID4Jf9nhqdDhoyraWtkEkKeiMmAABqxPeSFb2su97FDsAiAS4%2B51XPjv%2BvQvKi4TwgISBQ4lE0q%2Fz5AdDkaclkkrOiq%2BAwju%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAAaDDIxNzM0MzUwNTIxMCIMN5OkByzILpE7nS%2B8KpIDPyCLz0ncQqQoXpXMjWYSLXs8YTOZFFrim48zM5lpG7ECcETmzc026GZe4cC3gwAHjH%2FYzh9YYqYOyJsZNdUpVrCtThvui5BcBMUwacyY98opLSnTUHzbNRH1Q3I7anfNsm6DRbIK6NiYmyg4hhv%2FhQJ9L6plTRS1A7QgcRsiMpzTU1m1cAHNIPlZ0KIupqxNjCXYt5G3z8zGwrK38q0L%2BwcTa4QbQw3SLOJ1YDiSf9XbC0oOe1NhED%2FS13482VOzeBLaXXaf%2FJKzb0AgvVNyANSU%2FkLHHTNiyTnX%2Bgc8zy2aIqOdnZG5gnrZYD6iXPv1%2Fwc6lOnFOpObr8p%2BLQ9Z5IzNOn%2BrbtSUN3ego5JuoMQl0V4UQjg5sSIP%2FjHwJlc%2BP4VhduI9zaPpKeEXsGSeN6KMkyqg3Qiqfy%2F035SJAvLLh8ivxcj5fX6lksTGQ1POx1kqPrWHfJ1aKv5PY%2BYlWgA6IgH9K%2BFIRUGRPBOQ%2BKIKxjqKaUJVHJjAoNYcIrZWQ67lbKjxCs24M4%2FQoCpcSVYrMI2jp9EGOt8CAm9DIHJB6evhpBErdawLaNDsUl0l1dHsCxe87vv5yVQsXwsdc%2BEoF%2Frd7nfTCEUPQfdCbz3iMQEJzORTX51FTHPig8B5XzRjFkL93ZwZBnjAoqNWr5nwEVGtr4Yd0Rog71WReV84HbqckqUHC7HIZn7hb57dQNSnakZ6zUDDme6Bh2b4L0sZjkMayITnMiS51NQiVFYCeF0GQMdegQ61eKrge6Daw%2BTmT3BqEQZFD7tpFCdcw5tKEIEjqQFnxwc0sYQ3RuDyOSFvHYhxWxFaX2daoF9OAQ4W8yxrWXajQ1LAa%2BbzsyDZrFt1i887XC2hzCC7fFvv6DWJ7eHAoGkwqP8vs2BDsG65DbGEqwFWg6aov7o7ad1tHCOAc9fLopAJwTzU%2FkQ6Ahwk0D1oonv9VuZ92tw4RP9VgNsn%2Bpbk8B7T2JlBzUc%2BWzvL8kzGVVt3OMVyt6NvfemTGmkdwT0E&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATFGVOWM5FMG2RMGO%2F20260610%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20260610T210700Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=5707c5873aef2aaadb3cadd1ab34ea032d6222b213cb071e908be6dfb347ef43
+
+
 Link for AOP practice: https://github.com/chenyuan9977/StudentManagementProjectCeline 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
