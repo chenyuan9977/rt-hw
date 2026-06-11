@@ -1,1 +1,89 @@
 
+1. Why Spring Boot? Pros and Cons
+Spring Boot is a framework built on top of Spring that simplifies application development by providing auto-configuration, embedded servers, and production-ready features.
+Some advantages are faster development, reduced configuration, easier dependency management through starters, and built-in monitoring with Actuator.
+The disadvantages are that it may consume more memory compared to lightweight frameworks, auto-configuration can sometimes hide implementation details, and startup time can be longer for large applications.
+Overall, Spring Boot is a great choice for building enterprise-level REST APIs and microservices quickly.
+
+2. How do you start a Spring Boot project from scratch?
+When starting a Spring Boot project, I usually go to Spring Initializr and select the required dependencies such as Spring Web, Spring Data JPA, Spring Security, Lombok, and MySQL Driver.
+After generating the project, I configure the application.properties file, create the package structure including controller, service, repository, and entity layers, then implement business logic and database integration.
+Finally, I test the APIs using Postman and package the application using Maven or Gradle.
+
+3. @Controller vs @RestController
+@Controller is mainly used for traditional MVC applications that return views such as JSP or Thymeleaf pages.
+@RestController is a combination of @Controller and @ResponseBody. It automatically converts returned objects into JSON or XML and sends them directly to the client.
+For modern RESTful APIs, I usually use @RestController because most frontend applications consume JSON responses.
+
+4. @PathVariable vs @RequestParam
+@PathVariable is used to extract values from the URL path itself
+For example, '/users/100' can map 100 to a path variable.
+@RequestParam is used to read query parameters from the URL, such as '/users?id=100'.
+I use @PathVariable when identifying a specific resource and @RequestParam when filtering, sorting, or searching data.
+
+5. @RequestBody vs @ResponseBody
+@RequestBody is used to convert incoming JSON data into a Java object.
+For example, when creating a new user, the JSON request body is automatically mapped to a User object.
+@ResponseBody tells Spring to serialize the returned Java object into JSON and send it back to the client.
+In practice, @RestController already includes @ResponseBody automatically.
+
+6. How do you use GetMapping, PostMapping, PutMapping, DeleteMapping, and RequestMapping?
+These annotations map HTTP requests to controller methods.
+@GetMapping is used for retrieving data.
+@PostMapping is used for creating resources.
+@PutMapping is used for updating resources.
+@DeleteMapping is used for deleting resources.
+@RequestMapping is more general and can handle multiple HTTP methods.
+Using these annotations helps follow RESTful API design principles and makes the code easier to understand.
+
+7. What is Spring Actuator?
+Spring Actuator provides production-ready monitoring and management features for Spring Boot applications.
+It exposes endpoints such as health, metrics, beans, environment information, and application status.
+For example, the '/actuator/health' endpoint can be used by monitoring systems to verify whether the application is running properly.
+It is very useful for observability and system monitoring in production environments.
+
+8. How do you achieve async in a Spring Boot application?
+Spring Boot supports asynchronous execution through the @Async annotation.
+First, I enable asynchronous processing using @EnableAsync.
+Then I annotate a service method with @Async.
+When the method is called, Spring executes it in a separate thread from the thread pool.
+This is useful for tasks like sending emails, generating reports, or calling external services without blocking the main request thread.
+
+9. How does Spring handle exceptions?
+Spring provides several ways to handle exceptions.
+For local exception handling, I can use try-catch blocks.
+For controller-level h
+For global exception handling, I usually create a class annotated with @RestControllerAdvice and define methods to handle different exceptions.
+This allows the application to return consistent error responses and proper HTTP status codes.
+
+10. How does Spring validate data?
+Spring commonly uses Bean Validation with Jakarta Validation annotations.
+For example, I can use @NotNull, @NotBlank, @Email, and @Size on entity or DTO fields.
+Then I add @Valid to the controller method parameter.
+If validation fails, Spring automatically throws an exception, which can be handled by a global exception handler to return meaningful error messages.
+
+11. How does Spring do logging?
+Spring Boot uses SLF4J as the logging abstraction and Logback as the default logging implementation.
+I typically create a logger using LoggerFactory and use different log levels such as DEBUG, INFO, WARN, and ERROR.
+In production, I usually log important business events, exceptions, and system status while avoiding sensitive information.
+Proper logging helps with troubleshooting and monitoring.
+
+12. Cache Hit vs Cache Miss
+A cache hit occurs when the requested data is found in the cache, so the application can return it immediately.
+A cache miss occurs when the data is not found in the cache, and the application must retrieve it from the database or another source.
+Cache hits improve performance and reduce database load, while cache misses are slower because additional processing is required.
+
+13. Do some research on Redis and have a basic understanding
+Redis is an in-memory key-value data store commonly used for caching, session management, distributed locking, and message queues.
+Because data is stored in memory, Redis is much faster than traditional databases.
+It supports various data structures such as strings, lists, sets, hashes, and sorted sets.
+In Spring Boot, Redis is often used together with Spring Cache to improve application performance and reduce database access.
+
+14. Why use @RestControllerAdvice instead of @ControllerAdvice?
+@ControllerAdvice provides global exception handling and shared controller functionality.
+However, when building REST APIs, I usually use @RestControllerAdvice because it combines @ControllerAdvice and @ResponseBody.
+This means exception responses are automatically converted to JSON without requiring additional annotations.
+Since most modern applications expose REST APIs, @RestControllerAdvice is more convenient and reduces boilerplate code.
+
+
+Mock question S3 link: https://rt-celine.s3.us-east-2.amazonaws.com/6.1Q%26A.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDoaCXVzLWVhc3QtMiJHMEUCIQDtRXjErkK4r0niXsgrKiOcVYaKhyEIFL6K43nxdZsM8gIgEDOVC8DYNLmycgbH%2BB72H1rID%2BFtFRN8JSQI6dLu1gMqtQMIAxAAGgwyMTczNDM1MDUyMTAiDMpADO07qfBL2IdeWCqSA7qvkwkWZqk8BPCz1JbrvwV%2BnwVYZgO7ojwGPE0DIx7gWNBJmVg%2BJu9jJxNweGQeo7se3FP8O0LJmd5Ry95fdXUNCzhpIXwObVe9gSqOpMmem2ql56qVYxG49TM67QU%2BWYrNkyEt%2BrW2Aanpz2%2FiEowStqiVYgJT8AlEbiZ2FL3InNUPZJ5eAbhgAO098tkuo8mLTovctIH1kaG9veaUEBpGJCDIEZ9aUPkZ03uwSTMc5RkTXlRsLZmYNVSRS4NqIvPVL%2FCAe9bUJzXob%2Ff6YpeGV3XOdOLBNQsncFGh1NF8GQ5auSPLD8Mpc8Aw%2Ba4mrSRWiN2ncPLnwwiG0RrIJZ9QxolP4gMovCrLhg1aGaBWy0pHEiASnNbDpYqiIX%2FFFlt%2FiP23zyEaQI0ZtvkzFKEA%2FwNGNLSz4%2Fm7B2kkSdIBGZMV21T5A4b%2Fz1OdvMiRw%2FRWBk8QoxdFg4Fm0V8Os5P%2BZpGO%2FTWMwJEUc2FsUSxkNFBON2jh9sz%2BBSmLOcSFFoOvv%2BmLLZPmQ5U4LrIgSbj3DDDo6qvRBjreAkCEKwWgVvDFwgvT03kPsjJy4D2Tn5z5WL370z%2B49pveIVS%2BcY89q4J77WwjRTU8M7wT8N8AVA%2BXFyF2WSjL6RftfekjiqpjpZfW0zPpNta8ix0RafV06cVnjxxzXOENQQ3gXPPsw15Ht%2FHaftwrbqmL%2FvPA76qLuvpXtqX9f0sp%2BblM5w91CwY85nTSaPFVtckg72WI9XA7mWopQgK5p24xsHSuoprkLFUZ2JqIdEBuRFi5J7EDLCQeLe6EQ9wK8fiND0CjkU7qBxCwup7Tscgz%2Fi91pgNvyUk1C7wFa53b0TDNcy%2FAi8LcW%2B%2FKQU2dsEW8XNfCBlcWWeTxCHVZ%2BQ9MS9oAudVCHuZEhClsFqqmX0fZpRP9rGpfxU%2BiejoZKsSqjwB5wiYnlfsCcAAQ9cvKAbxg%2Bser4dDniODjPOPoPlAm7UGR7AwL4VJiFFmlCKy8f7Wsq57FJFOVCbhB&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATFGVOWM5MCTYTNKG%2F20260611%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20260611T175204Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=eac37ebeff4ac873a01e10fa53173dd890bb3966e994c5ec906683ef8cc85714
