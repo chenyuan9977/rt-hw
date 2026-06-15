@@ -1,1 +1,347 @@
 
+a. mock questions review + recording 
+Question:
+1. introduce what is Spring Framework
+When introducing the Spring Framework, I prefer to address it from two distinct dimensions based on its technical evolution.
+First, if we look strictly at the core framework itself, its two absolute pillars are Inversion of Control (IOC) and Aspect-Oriented Programming (AOP). 
+Within the Spring container ecosystem, BeanFactory is rarely used directly by developers; instead, we almost always interact with ApplicationContext.
+Second, the best way to frame this is by highlighting the evolution from Spring, to Spring MVC, and finally to Spring Boot:
+The original Spring Framework required heavy manual configuration and XML setups. It was full of boilerplate code, and didn't include features like 
+built-in Tomcat or Actuator.
+As it evolved into Spring MVC, web annotations like @RequestMapping were introduced, though some boilerplate configurations still remained.
+Ultimately, it culminated in Spring Boot, which is entirely pure annotation-driven. It completely refactored out the boilerplate configurations, making 
+application setup seamless.
+By presenting it this way, it shows a comprehensive understanding of how the framework transitioned from rigid, manual setups into modern, annotation-driven
+architectures.
+
+
+2. spring boot version you used
+In my professional experience, I have used both Spring Boot 2.x and 3.x, and I have hands-on experience handling the migration between them.
+Typically, Spring Boot 2.x is widely compatible with Java 8, Java 11, and Java 17. However, when we decided to upgrade our applications from Spring Boot 2
+to 3.0, we had to upgrade our Java runtime to at least Java 17, because Spring Boot 3.0 is strictly baseline-compatible with Java 17 or above.
+The most significant technical shift during this migration was the package renaming. All the legacy Java Extension packages (which is javax.*) were fully 
+converted to the new Jakarta packages (jakarta.*) under Spring Boot 3.
+By framing my answer this way, it demonstrates a practical understanding of version compatibility and the architectural shift from Java Extension to 
+Jakarta standards.
+
+
+3. how do you define profile
+To hit the question first, Profiles in Spring Boot are essentially environment-specific configurations used to isolate different stages of the application, 
+such as Development, Testing, UAT, or Production.
+In my projects, I define and manage profiles through a few consistent approaches:
+First, via configuration files: Depending on the project style, I've used both Properties and YAML formats. We define them using environment-specific file 
+names combined with the main configuration, such as application-dev.yml or application-prod.properties.
+Second, via code-level control: We can place the @Profile annotation directly on top of a class or a bean definition to handle conditional registration. 
+For instance, a class decorated with @Profile("dev") will only be configured and injected if the dev environment is active. It also supports negative logic,
+like @Profile("!dev"), meaning the spring bean will be registered as long as the environment is NOT development.
+Finally, via dynamic activation: When booting up the application in production, we can dynamically activate the target profile without changing code by 
+simply leveraging JVM arguments or Environment variables
+
+
+4. what discovery service impl you used before
+In a microservice architecture, the primary service discovery implementation I have used before is Eureka.
+Integrating it with a Spring Boot application is highly straightforward. On the main bootstrap class—right alongside the @SpringBootApplication 
+annotation—we simply add the enabling annotation, such as @EnableEurekaClient. This signals our Spring Boot application to automatically register itself 
+with Eureka upon startup.
+Architecturally, Eureka acts as a centralized informational board. It constantly monitors the status of each Spring Boot application through health check 
+mechanisms. If an application instance goes down or becomes unresponsive, Eureka automatically deregisters it from the system. This ensures that other 
+microservices within the architecture only route traffic to live, online servers that are currently healthy and working.
+
+
+5. what is aop
+AOP stands for Aspect-Oriented Programming. Its primary purpose is to enhance the original business logic without introducing duplicate logic patterns
+all over the codebase.
+In practical development, we usually implement AOP in two different styles:
+The first style is specific to the controller layer: An example of this is global exception handling, which we implement using the @RestControllerAdvice 
+annotation.
+The second style is a more generic aspect: We define a dedicated class decorated with the @Aspect annotation. When writing this type of aspect, the 
+implementation always revolves around two critical dimensions: 'Where' and 'When'.
+Where is defined by the @Pointcut, which explicitly specifies the target methods or annotations we want to intercept.
+When is defined by the Advice, which dictates the exact timing of the execution. This includes five standard annotations: @Before, @After, @AfterReturning,
+@AfterThrowing, and the most powerful one, @Around.
+By linking 'When' and 'Where' together, AOP allows us to seamlessly separate cross-cutting concerns—like logging or security checks—from our core business 
+logic.
+
+
+6. how to write spring boot to call from frontend to backend and save data to database
+When designing a full flow that calls from the frontend to the backend to save data, my mindset always strictly follows the natural order of the data flow. 
+In Spring Boot, I implement this by utilizing a solid 3-tier architecture:
+First, the request triggered by the client UI hits the Controller layer. My priority here is to design a standard RESTful endpoint. I use @PostMapping for 
+creating and saving data, and apply the @RequestBody annotation to bind the incoming JSON payload into a clean DTO.
+Next, the data flows into the Service layer, which is dedicated to processing core business logics. In practice, I always follow the Interface plus 
+Implementation design pattern. This layer separation gives us massive architectural flexibility, allowing us to swap out different logic implementations 
+smoothly if business requirements change in the future.
+Then, the data reaches the DAO or Repository layer. Nowadays, for SQL databases, we heavily rely on modern ORM frameworks, specifically Spring Data JPA. 
+We simply call the .save(entity) method, and the framework automatically manages the object-relational mapping to the database underneath.
+Finally, for the return flow, I always wrap our business payload alongside an explicit HTTP status code inside a ResponseEntity, which is passed back to 
+the controller and sent through Tomcat to the web browser for rendering. Structuring the answer around this linear data flow ensures that every layer is 
+properly engaged without accidentally skipping the service layer.
+
+
+7. Describe Spring MVC
+When describing Spring MVC, it's critical to clarify that it doesn't just refer to the standard 3-tier internal separation of Controller, Service, and DAO.
+Instead, its core architectural purpose is to handle the precise routing and dispatching of HTTP requests at the web layer.
+We can break down its workflow from the network level down to its core component pipeline:
+First, how the request hits the server: When a client browser fires an HTTP request, it utilizes the IP address to locate the remote machine, and the 
+unique Port number to bind to the specific application process. That is why port numbers must be unique within a single OS.
+Second, the entrance through DispatcherServlet: Once the request hits the application, it immediately encounters the brain of Spring MVC—the 
+DispatcherServlet, which acts as the Front Controller. In legacy systems, developers had to manually wire this up inside a painful web.xml configuration 
+file. Modern Spring Boot has refactored all of this out into pre-configured boilerplate logic under the hood.
+Finally, the routing mechanism via the Handler Chain: The DispatcherServlet acts as a coordinator. It hands the request over to the HandlerMapping, which 
+maintains a Handler Chain containing all registered RESTful endpoints. The HandlerMapping looks at the combination of the URL and the HTTP Method (for 
+example, GET /employee/1) to find a match. Once matched, it delegates the execution to the corresponding method in our Controller layer.
+Once processed, the data is returned under @ResponseBody as a JSON payload, which is piped back to the client browser for rendering. That is the true 
+essence and underlying flow of the Spring MVC framework.
+
+
+8. how do you validate input data in spring boot
+To handle input data validation gracefully in Spring Boot, I always lean on a very clear, two-step structural approach:
+Step 1: Define validation rules on the Model or DTO layer.
+We apply standard validation annotations directly onto the fields of our DTOs or entities to restrict how the input data looks like. Some of the most 
+commonly used annotations include @Size for bounding string or collection lengths, @Email for format checks, @Min and @Max for numeric ranges, and 
+@NotNull or @NotEmpty to prevent null values. We can also customize the log or error message inside these annotations.
+Step 2: Enable validation via annotations at the Controller layer.
+Defining the rules is not enough; we must explicitly decorate the incoming method parameters in our Controller with the @Valid annotation. This signals 
+Spring to actively scan and execute those constraints the moment a frontend request hits the endpoint.
+By framing the answer around this two-step structure, it demonstrates to the interviewer a clean and disciplined approach to safeguarding the system's 
+first line of defense.
+
+
+9. Spring boot actuator
+Simply put, Spring Boot Actuator is a production-ready built-in plug-in that automatically exposes monitoring endpoints to track application health and
+metrics. In my project implementations, I strictly follow a robust 4-step enterprise workflow:
+Step 1: Import the dependency. We add spring-boot-starter-actuator to our pom.xml.
+Step 2: Handle critical, environment-specific security configurations. The absolute best practice here is never blindly expose all endpoints using 
+wildcards like include: '*'. Out-of-the-box settings from generative tools can introduce severe security liabilities. Exposing sensitive data like the 
+JVM heapdump, registered beans, or cache to external users can lead to massive security leaks. We must restrict exposure to a bare minimum, configure it 
+strictly for dev, and lock it down securely via VPN or network rules for production.
+Step 3: Persist metrics into a Time-series database. We pipe the exposed metrics into a dedicated time-series database, specifically Prometheus. In our 
+local and production setups, this typically runs as an isolated Docker container configured via docker-compose.
+Step 4: Configure a Visualization tool. Lastly, we configure Prometheus as the primary DB source and connect it to Grafana to visualize the metrics 
+dynamically on a production-grade monitoring dashboard.
+Framing my answer around this specific pipeline demonstrates not only that I can write runnable code, but that I possess the security consciousness and 
+production-level experience required to manage a modern microservices architecture safely.
+
+
+10. how does spring mvc work
+To explain exactly how Spring MVC works, the entire framework revolves around a highly coordinated data flow based on the Front Controller pattern.
+Even though modern Spring Boot wraps this into auto-configuration so we don't have to wire it manually, understanding this underlying execution pipeline 
+from scratch is crucial. It breaks down into four sequential steps:
+Step 1: Request Interception. Every incoming HTTP request from the client first hits the central coordinator of the web layer, which is the 
+DispatcherServlet.
+Step 2: Routing Lookup. The DispatcherServlet does not execute business logic itself. Instead, it immediately consults the HandlerMapping. The 
+HandlerMapping evaluates the combination of the incoming URL and HTTP method to scan the registered handler chains and pinpoint the exact controller 
+method assigned to that route.
+Step 3: Controller Execution. Once the correct endpoint is resolved, the DispatcherServlet utilizes an adapter to actually invoke that specific method 
+within our Controller layer.
+Step 4: Response Handling. In modern decoupled web services where we use @RestController, the controller returns a raw data object. Spring MVC 
+automatically steps in with an HttpMessageConverter to serialize that object into a clean JSON response body, which the DispatcherServlet pipes directly 
+back to the client browser.
+Articulating this pipeline smoothly with the correct components demonstrates a rock-solid grasp of the Spring ecosystem that holds up under intense 
+technical interview scrutiny.
+
+
+11. what is controller how you use controller how you implement controller
+When discussing Controllers, I prefer to structure my answer across three distinct levels: its architectural definition, its practical implementation, 
+and its enterprise best practices.
+First, What is a Controller (Architectural Role):
+The Controller serves as the top-most layer in our 3-tier architecture. Its single, primary responsibility is to expose RESTful endpoints to the frontend 
+UI, intercept incoming HTTP requests, and seamlessly delegate the workflow down to the Service layer.
+Second, How to Implement and Use it (Code Application):
+In my daily development, I implement it by decorating the class with the @RestController annotation. This automatically registers the class as a Spring 
+Bean and ensures all handler responses are serialized as JSON by default. Inside the class, I focus heavily on clean RESTful endpoint design. I bind the 
+four standard HTTP methods—@GetMapping, @PostMapping, @PutMapping, and @DeleteMapping—to handle our full CRUD operations, and I always wrap the return 
+values inside a ResponseEntity to pair the business payload with the exact HTTP status code.
+Third, How to Make it Robust (Production Best Practice):
+To ensure our Controller layer remains highly robust and maintainable in production, I avoid cluttering individual endpoints with ugly try-catch blocks. 
+Instead, I always pair my controllers with a global @RestControllerAdvice to centralize our exception handling logic.
+Structuring the controller this way keeps the network entry points decoupled, clean, and completely fortified against unhandled runtime crashes.
+
+
+12. what is webflux? Have you used it in your 
+When discussing WebFlux, I prefer to frame its role across three dimensions: its technical architecture, its reactive core components, and its industry 
+evolution alongside Java 21.
+First, The Technical Essence (Non-blocking Alternative):
+WebFlux is an asynchronous, non-blocking reactive programming framework introduced in Spring 5 as an alternative to Spring MVC. While traditional Spring 
+MVC relies on Tomcat's classic 'thread-per-request' synchronous model—where one thread handles one request from start to finish—WebFlux leverages the 
+Reactor library. It treats incoming traffic as data streams flowing through channels managed by minimal worker thread groups, executing operations in 
+highly parallel, non-blocking event loops.
+Second, Core Components & Code Implementation (Mono & Flux):
+In terms of code implementation, WebFlux completely shifts the return types. Instead of returning raw entities, everything is wrapped into reactive 
+streams: a single object is wrapped as a Mono, whereas a group or list of objects is returned as a Flux. Working with it is highly similar to Java 8 
+Stream APIs, where data must be processed through functional pipelines and actively subscribed to. I have hands-on experience exploring and utilizing 
+it to handle data streams in high-concurrency, I/O-bound edge components.
+Third, Production Pain Points & The Java 21 Evolution (Crucial Interview Insight):
+However, in real-world enterprise development, a major operational drawback of WebFlux is that it is notoriously difficult to debug. Because the execution 
+is asynchronous and stream-based, setting up standard breakpoints to track internal processing states becomes an absolute nightmare.
+Furthermore, with the rollout of Java 21 introducing Virtual Threads, the performance barrier of the traditional thread model has been completely shattered.
+Modern Tomcat setups paired with Virtual Threads allow us to achieve massive concurrent throughput using straightforward, readable Spring MVC code. Unless a
+company has already heavily invested resources into a reactive infrastructure, the industry is shifting away from WebFlux toward the 'Java 21 Virtual 
+Threads + Spring MVC' combo due to its vastly superior maintainability.
+
+
+13. how you connect the database in springboot
+Connecting to a database in Spring Boot is a highly streamlined process. In real-world enterprise development, I always break this implementation down into 
+three structured steps:
+Step 1: Handle Dependency Management.
+First, we need to introduce two essential dependencies inside our pom.xml. One is the persistence layer starter, such as spring-boot-starter-data-jpa (or 
+MyBatis), and the other is the specific database driver, such as the MySQL Connector driver.
+Step 2: Setup DataSource Configurations.
+Next, we define our environment-specific database properties within the application.yml or application.properties file. We provide the mandatory spring.
+datasource attributes, including the JDBC URL, database Username, Password, and the explicit Driver class name.
+Step 3: Leverage Automated Connection Pooling (HikariCP Bootstrapping).
+This is where Spring Boot’s auto-configuration shines. Upon application startup, Spring automatically reads these properties to bootstrap an instance of 
+HikariCP, which is the high-performance default connection pool. This connection pool bean is automatically registered into our IOC container, allowing our
+Repository layer to manage data access smoothly.
+Structuring the response around these three distinct phases demonstrates to the interviewer a clean, production-oriented understanding of database 
+connectivity.
+
+
+14. how do you handle global exception in spring boot
+To enhance system robustness and avoid exposing raw, ugly stack traces to the client, I typically approach global exception handling in Spring Boot using 
+two complementary, AOP-styled mechanisms:
+Approach 1: Controller-layer Interception using @RestControllerAdvice:
+This is our primary line of defense. We create a centralized handler class decorated with @RestControllerAdvice. Inside, we utilize the @ExceptionHandler 
+annotation to intercept specific runtime exceptions—such as a custom ResourceNotFoundException. This allows us to map the error to an explicit HTTP status 
+code like 404, mending the raw crash into a friendly, structured JSON payload that tells the client exactly what happened.
+Approach 2: Generic Aspect Interception using AOP @AfterThrowing:
+As David highlighted in class, utilizing a pure AOP aspect also firmly falls under the umbrella of exception handling. We can build a custom aspect marked 
+with @Aspect, and leverage the @AfterThrowing advice coupled with a JoinPoint. This allows the aspect to actively kick in at the exact 'timing' when a 
+targeted business method throws an error. While the controller advice handles the REST API response mapping, this aspect approach is ideal for managing 
+technical cross-cutting concerns, such as executing deep log audits, triggering database rollbacks, or firing alerts to third-party monitoring systems.
+Articulating both strategies shows the interviewer that I don't just copy-paste boilerplate code, but fully grasp the underlying AOP execution timing and 
+lifecycle inside the Spring ecosystem.
+
+
+15. Spring boot annotation
+Instead of just reciting a laundry list of annotations, I prefer to categorize the Spring Boot annotations I’ve used by their architectural purposes, 
+weaving them directly into my hands-on experience managing transaction streaming and database migrations:
+Category 1: Bootstrapping & Component Scanning:
+The absolute entry point is @SpringBootApplication on our main bootstrap class. It seamlessly handles auto-configuration, external properties loading, 
+and component scanning under the hood, saving us from legacy XML boilerplates.
+Category 2: RESTful API Design & Input Validation:
+In my previous project handling complex payment pipelines—where we ingested heavy transactional payloads from diverse channels like Visa and Stripe—I 
+designed our endpoints using @RestController paired with a class-level @RequestMapping for parent pathing.
+I utilized explicit HTTP mappings like @GetMapping and @PostMapping to execute granular CRUD actions. To parse incoming traffic, I mapped payloads using 
+@RequestBody, @PathVariable, and @RequestParam. More importantly, to safeguard our entry layer, I triggered bean validation using the @Valid annotation, 
+which actively enforced the model-level rules defined by @NotNull, @Size, and @Min.
+Category 3: Dependency Injection & 3-Tier Components:
+Across our core architecture, I registered beans using @Service and @Repository. Because a single interface like our PaymentService had multiple competing
+implementations for Visa and Stripe, and given that Spring injects beans by type naturally, I relied heavily on the @Qualifier annotation to explicitly 
+guide the container to inject the exact runtime bean required. I also occasionally integrated the @Lazy annotation to gracefully untangle edge cases 
+involving circular dependencies.
+Category 4: Dynamic Configuration & Environment Binding:
+Finally, during a critical runtime database migration from a legacy Oracle setup to Azure PostgreSQL, we had to manage split-traffic data sources. I 
+authored custom setup classes decorated with @Configuration, using method-level @Bean definitions to manually manage third-party database connections. 
+Inside these classes, I injected encrypted JDBC strings and Hikari pool sizing directly from our properties file via the @Value annotation.
+Framing annotations this way proves to the interviewer that I don't just memorize keywords from external study guides—I deploy them strategically to 
+solve genuine production and architectural engineering challenges.
+
+
+16. how Spring IOC work , all annotations and injection and bean types
+To thoroughly explain how Spring IOC works, it’s best to view it not as a static set of terms, but as a highly coordinated, automated lifecycle pipeline 
+managed entirely by the application context:
+Step 1: Metadata Bootstrapping & Scanning: Upon microservice startup, the @SpringBootApplication annotation triggers the component scanning mechanism. 
+The IOC container actively reads metadata within the specified package paths, searching for classes decorated with bean stereotypes. This includes the 
+generic @Component, or layer-specific annotations like @RestController, @Service, and @Repository. Alternatively, custom configurations can be declared 
+inside a @Configuration class using method-level @Bean annotations. If certain components are explicitly blacklisted under the exclude attribute of the 
+startup class, they are completely bypassed.
+Step 2: Instantiation & Scope Resolution: Once these blueprints are gathered, the container processes their Bean Definitions and kicks off bean 
+instantiation. By default, Spring beans adopt a Singleton scope, meaning the container creates and maintains only one shared instance globally for each 
+bean definition. During this exact creation phase, if the system encounters an implicit circular dependency, we strategically apply the @Lazy annotation 
+to defer initialization, gracefully unlinking the deadlock at runtime.
+Step 3: Dependency Injection (DI): After objects are physically instantiated, the container executes dependency injection to stitch them together. While 
+field and setter injections exist, our production standard strictly enforces Constructor Injection. In modern Spring versions, if a component exposes only 
+a single constructor, the @Autowired annotation becomes entirely optional—the container automatically resolves and autowires the dependent beans, 
+which significantly boosts code readability.
+Framing Spring IOC around this end-to-end lifecycle demonstrates a mature, production-level engineering mindset that goes far beyond generic textboo 
+definitions.
+
+
+17. how many ways to inject bean in spring and which one we use most
+In the Spring framework, there are three standard ways to execute dependency injection: Constructor Injection, Field Injection, and Setter Injection.
+In modern production-level development, Constructor Injection has become the absolute industry standard and our team's go-to implementation. It’s important
+to note that all three approaches are valid within the ecosystem, but constructor injection is heavily prioritized due to three massive architectural 
+advantages:
+First, it honors the 'Fail-Fast' engineering philosophy: This is the most crucial reason. If we rely on field injection, the Spring Boot application might
+boot up successfully without any hitches, only to crash unexpectedly with a fatal NullPointerException (NPE) during runtime when that specific code path is
+hit. Constructor injection shifts that risk. It enforces that all necessary dependencies must be available at the exact moment of instantiation; if a 
+dependency is missing, the container will crash immediately during startup. This 'Fail-Fast' behavior allows us to capture integration gaps before the code 
+ever leaves the local environment.
+Second, it ensures NullPointerException (NPE) prevention: Because dependencies are tightly bound through the object's constructor, it guarantees that any 
+instantiated Spring Bean is a fully formed, robust object that is permanently safe from un-injected runtime references.
+Third, it is highly Unit-Test friendly: When writing standard unit tests using Mockito, we often want to isolate our logic without booting up a heavy, 
+time-consuming Spring application context. With constructor injection, we can treat the component as a pure Java class, directly utilizing the new keyword 
+to instantiate the object and passing our mocked dependencies straight into the constructor parameters.
+Structuring the workflow around constructor injection creates a clean, predictable, and highly secure dependency pipeline across all our microservices
+
+
+18. by name vs by type
+When explaining how Spring resolves dependency injection, the relationship between byType and byName is best described as a structured, two-stage resolution
+process:
+Stage 1: byType is Always the First Priority:
+When a dependency is declared in our components, the Spring IOC container always begins the lookup process by evaluating the class type (byType). It 
+searches the context for a bean that matches the exact data type or interface requestedd. If exactly one matching bean is found, Spring injects it 
+immediately, and the lookup succeeds.
+Stage 2: Automatic Fallback to byName under Conflict:
+If Stage 1 encounters a scenario where multiple candidate beans implement the exact same requested type or interface, a conflict occurs. To resolve this 
+ambiguity, Spring automatically falls back on the byName mechanism. It attempts to match the variable field name in your code against the registered bean 
+names in the IOC container.
+Enterprise Best Practices for Overriding Ambiguity:
+In real-world microservices—where we frequently have multiple implementations of a single interface (such as a VisaPaymentService and a 
+StripePaymentService)—relying blindly on field names is risky. Therefore, we explicitly dictate control using two standard annotations:
+@Primary: This is applied directly at the component class level, signaling the container to treat this specific implementation as the 
+default choice if a type collision occurs.
+@Qualifier: This is applied at the injection site (e.g., inside the constructor parameters), where we pass an explicit string name—like 
+@Qualifier("stripePaymentService")—to bypass type matching entirely and force a surgical, name-based injection.
+To summarize, Spring’s philosophy is 'byType first, then byName as a fallback', and as developers, we utilize @Primary and @Qualifier to maintain strict 
+deterministic control over our bean wiring.
+
+
+19. why constructor injection
+In our production-grade enterprise development, we strictly enforce Constructor Injection because it perfectly embodies the principles of defensive 
+programming and the 'Fail-Fast' engineering philosophy. I always summarize its benefits into three major architectural reasons:
+1. It Guarantees Absolute Runtime NullPointerException (NPE) Prevention:
+When developers rely on field injection, the Spring Boot application often boots up without any complaints, even if a dependency is completely missing 
+or misconfigured. This creates a hidden time bomb that explodes as a fatal runtime NPE when that code path is hit by live traffic. Constructor injection 
+prevents this at the JVM level. It dictates that a bean cannot physically be constructed without all its mandatory dependencies provided as arguments. This ensures that every bean managed in our container is always fully initialized, state-secure, and robust.
+2. It Enforces the 'Fail-Fast' Principle at Startup:
+From an operational safety standpoint, we always want bugs to surface at the earliest possible stage. With constructor injection, if there is a broken 
+dependency chain or a missing bean mapping, Spring Boot will fail to bootstrap and crash immediately upon startup. This 'Fail-Fast' mechanism catches
+architectural gaps directly on the developer's local machine or during the CI/CD build phase, completely preventing 'unstable' deployments from leaking into production.
+3. It Minimizes Framework Coupling, Making Unit Testing Seamless:
+When writing fast, isolated unit tests using Mockito, we want to avoid booting up a heavy, time-consuming Spring Application Context. Because constructor 
+injection makes all dependencies highly explicit, the class behaves as a pure, loosely coupled Java object. We can seamlessly instantiate the target class 
+using the plain new keyword in our test files and pass mocked dependencies directly into the constructor.
+To put it simply, we prioritize constructor injection because it uses startup-stage failure (Fail-Fast) to guarantee runtime system stability
+
+
+20. what java version can we use with spring boot 3
+To develop with Spring Boot 3.x, the absolute baseline requires at least Java 17. This marks a major generational shift in the Spring ecosystem, 
+as it completely drops official runtime support for legacy versions like Java 8 and Java 11.
+In modern enterprise architectures, we look at the Java version strategy for Spring Boot 3 from two strategic angles:
+Java 17 as the Hard Baseline: Stepping up to Java 17 natively introduces highly modernized features. The standout for backend developers is the Record 
+class, which provides an immutable, boilerplate-free structure that is absolutely ideal for handling DTO models. It also brings in enhanced Pattern 
+Matching for switch statements and multi-line Text Blocks.
+Java 21 as the Production Sweet Spot: Spring Boot 3 offers seamless, first-class support for Java 21. As we often discuss regarding high-concurrency 
+optimizations, Java 21 rolls out Virtual Threads. This allows our straightforward Spring MVC thread-per-request architecture to scale horizontally and 
+absorb massive traffic loads with negligible memory overhead, completely removing the operational urgency to refactor into complex WebFlux reactive 
+codebases.
+Therefore, while the framework gatekeeper is set at Java 17, our technical preference for modernizing production environments is a firm deployment on J
+ava 21
+
+
+21. what is dispatcherservlet
+To put it simply, the DispatcherServlet is the central brain and the absolute core of the Spring MVC framework, architecturally designed around the Front 
+Controller pattern. As David sharply pointed out in class, it functions as the ultimate 'coordinator' or the 'middleman' of the entire web layer.
+Its operational responsibilities can be broken down into two major actions:
+1. Centralized Request Intake: Every single incoming HTTP request fired from the client browser or API gateway hits the DispatcherServlet first. It acts as 
+the single point of entry for the entire application, holding a macro-view of the traffic.
+2. Precise Routing & Distribution: The DispatcherServlet doesn't execute individual business operations itself. Instead, it acts as a traffic dispatcher. 
+It consults the HandlerMapping to evaluate the incoming URL path and HTTP Method against the registered Handler Chain. Once a match is found, it surgically
+routes or dispatches the request to the designated controller endpoint for execution, and subsequently ensures the processed response is securely piped 
+back to the client.
+Describing the DispatcherServlet as a 'high-performance middleman focused purely on request distribution' proves to the interviewer that you thoroughly grasp how traffic is managed and triaged inside the Spring ecosystem
+
+
+S3 link: https://rt-celine.s3.us-east-2.amazonaws.com/Week3%20mockQ.mp4?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJ7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJGMEQCIG5uqW0ISN5LYD%2FlQCbddCaAB47OB3rS8oohn4HcuXU7AiA9ASYpT70C6wRDcZ89YL1CVOtVZEZT1J5gggC%2FSx1j4Cq1AwhnEAAaDDIxNzM0MzUwNTIxMCIMtOgOKfJMx0syvLhJKpID6A%2BYgLny6CbsGG8%2Fayfu%2B70YgI6%2FT1nIGcCqZs8BPwuKRg85svu7Mq3hViia7CtQyv8mDliO8P47H2fvYrWt2U4xqQ0tI8Yocvu7hHjPDzlkco%2B3n8Q0RkTn9va3as19qiSFwhNv4gEaAWFIAxU8RkKHgag4er8sJ9AT70onI2rTY0RcAcxIrgwWleZtyKrmf86YX%2FAtQWYjpU3mEWp4TB46YVPPvmrE3uhzdmyahWBa82wNwc1%2BOYG1hM%2Fh3hCZlb6wwwIpM5ge0hGX%2BrPgHrOPmeReuQfGHfP9vC8J7USTXGdo2JsvUvi517NBvaugkjQhV6OHBbCvXzbIMsuQLpJgfdcOKrOam6%2BNFfJg5Gdz8Q08Wcn10cqVfskj64DqbvgUA8TiH6cEYjAMlbSbpCrf8MFpxDbg21E89riLpRpzhGxx%2FKWXbtZN%2FSgfk4uTqU7q%2Bd95GaE%2Bk%2Bliy%2FwMo2m265uBNNiV4TvhwTw7ZOHiqHLMEnbCoc3zSdIlqyFHSsyUBJY4UOFBI2Dom0k4DgDuMJ%2FmwdEGOt8C9xWKGKQLtIV9ICjTZc%2Bwf2PJiZz6qHBvxajYcbC9g2Fp56qhOL0a3DdKYA15jajtLLDuIt6qo4TeW7M9TBGiLv2QKULKI6gUzo78d0Tq9DdUVY9RVXjVgsl9KrM44vbnnhHqa3EO%2Bv%2F4Nsfd33J8s6XVmz3cU%2B6nIyKEf%2FAtdhD48rCpLMC419VjM4vb3GRfKIhOULBOcnz4juSMAyAmDHZilac%2BSmQ5PHIyY946JAxLAK2wMjoKh0iUeHCQflHMPJ1gRoOSomYaICPzVa8f3C0jf9Qjp6WtLkMoIyzwtYMwB9%2FDkkm3rYUA%2BrsTv5uztLA0twCBEyV9m16%2FZO1MoiV0zkFklw7WeiuYuERGRqZZITCV5M0aQjc66yDTAduIHnj1FqZ5Lk%2F7CVGzroFRDYib6ATVyIo896XTQazGCJYnpyo7d%2BtB3cErdDbacgdem1osjF2vk0iUjYeUGeRl&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATFGVOWM5DELKP6XL%2F20260615%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20260615T215122Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=a131b2dde034a95fc6703e64a33ad7d89aee94cbaed980f8fe35d1af59463f81
