@@ -1,1 +1,86 @@
 
+
+a. mock questions review + recording 
+  1. prepare script and included into .md file
+  2. recording the practice 
+  3. upload to S3
+  4. attach S3 link in .md file 
+  5. upload .md file to github HW repo. 
+
+b. HW13 
+1. review SQL concepts 
+2. write all SQL execise 
+3. understand SQL statements logic 
+4. create .md file with all the sql practice
+3. upload to github repo
+
+
+
+
+
+13.1. review SQL concepts 
+1. SQL vs. NoSQL Databases
+In production architectural design, I don't look at this as a matter of "which is better," but rather a trade-off between structured data integrity and high-throughput scalability.
+Data Model & Schema: SQL databases require a strict, predefined schema and enforce foreign key constraints, making them ideal for highly structured business logic. NoSQL databases are schema-less (supporting documents, key-values, columns, or graphs), providing the flexibility needed for rapidly changing or semi-structured data.
+Scalability Paths: Traditional SQL scales vertically (Scale-up) by upgrading a single machine's hardware. While NewSQL brings distributed capabilities, traditional SQL struggles with complex JOINs and transactions across distributed nodes. NoSQL scales horizontally (Scale-out) natively via sharding, built from the ground up to handle massive datasets and concurrent traffic.
+Transaction Philosophy (ACID vs. BASE): SQL strictly adheres to ACID for absolute data accuracy. NoSQL embraces the BASE philosophy, prioritizing performance and availability by settling for eventual consistency.
+The Architectural Decision
+For core enterprise domains like ledger systems, user authentication, and order processing, SQL is non-negotiable due to ACID mandates. However, for massive scale or unstructured workloads like telemetry logs, real-time caching, or social feeds, I would opt for NoSQL.
+
+
+2. What is Database Normalization?
+Database Normalization is the process of structuring a relational database to eliminate data redundancy and modification anomalies (such as insertion, update, and deletion anomalies). However, in production, senior engineers must balance this against query performance.
+The Core Mechanics (1NF to 3NF): The core philosophy is "one fact in one place." By sequentially applying 1NF (atomicity), 2NF (eliminating partial dependencies), and 3NF (eliminating transitive dependencies), we protect the system from operational bugs like update anomalies.
+The Production Trade-off: While a highly normalized database ensures absolute data integrity and saves disk space, it breaks down under high-concurrency read traffic. Fetching a single business entity might require 5-way or 6-way JOIN operations, heavily spiking CPU utilization and causing slow queries.
+Engineering Best Practice
+In real-world enterprise architectures, we frequently design for Denormalization intentionally. For instance, in an e-commerce platform, we duplicate fields like item_name or shipping_address directly inside the orders table. This compromises storage optimization to eliminate expensive JOINs and captures a historical snapshot of the data at the exact moment of purchase.
+
+
+3. Vertical Scaling vs. Horizontal Scaling
+These represent two distinct software evolution philosophies. While horizontal scaling is inevitable for modern cloud-scale applications, vertical scaling is often the most pragmatic choice in early-stage engineering.
+Vertical Scaling (Scale-Up) focuses on "Single-Node Capability": Upgrading a single server's hardware (CPU, RAM, storage).
+Engineering Reality: The massive advantage is zero architectural intrusion—no code rewrites or distributed system patterns required. However, you hit a hard hardware ceiling quickly, costs grow exponentially rather than linearly, and it fails to eliminate the Single Point of Failure (SPOF).
+Horizontal Scaling (Scale-Out) focuses on "Cluster Capability": Adding more commodity servers to a pool behind a load balancer.
+Engineering Reality: This unlocks virtually limitless, elastic scalability, aligning perfectly with cloud-native auto-scaling. The cost, however, is a massive surge in architectural complexity. Your application layer must be strictly stateless, and you must manage service discovery, network partitioning, and data replication.
+Strategic Summary
+In early product lifecycle stages, engineering velocity is paramount. Vertical scaling is often the smart business decision because hardware is cheaper than engineering hours. As the system matures and traffic hits scale thresholds, we then refactor the system into microservices and shards to support Horizontal scaling.
+
+
+4. What is ACID?
+ACID is the golden standard for ensuring strong transactional integrity within relational databases. In a technical interview, it's highly effective to explain how these properties are enforced under the hood:
+A - Atomicity ("All-or-Nothing"): Guarantees that all operations within a transaction are completed successfully, or the entire transaction is rolled back. It is enforced primarily via the Undo Log. If a transaction encounters an error mid-way, the database uses the Undo Log to reverse all incomplete modifications.
+C - Consistency ("State Validity"): Ensures that a transaction can only bring the database from one valid state to another, maintaining all database rules and constraints. This is the ultimate objective of ACID and is achieved through a combination of Atomicity, Isolation, and Durability, alongside standard schema database constraints (such as unique indexes and data types).
+I - Isolation ("Concurrency Control"): Dictates how the system handles hundreds of transactions mutating the same rows concurrently without interfering with each other. Databases leverage locking mechanisms (row/table locks) and MVCC (Multi-Version Concurrency Control) to prevent race conditions across various isolation levels (e.g., Read Committed, Repeatable Read).
+D - Durability ("Data Persistence"): Guarantees that once a transaction has been committed, it will remain saved in the system permanently, even in the event of a power loss or system crash. This relies on the Redo Log and WAL (Write-Ahead Logging) philosophy, where changes are written sequentially to a fast log on disk before being asynchronously flushed to actual database files.
+
+
+5. What is CAP Theorem?
+The CAP Theorem acts as the fundamental guardrail for distributed systems design. It establishes that since network hardware is inherently imperfect, we must engineer a deliberate trade-off between data consistency and system uptime.
+P - Partition Tolerance is Mandatory: Network drops, cross-datacenter latency, and switch failures are mathematically guaranteed to happen at scale. Therefore, a "CA" system is a myth in distributed production networks.
+The Real Engineering Choice is CP vs. AP: When a network partition (P) cuts communication between Node A and Node B:
+Choosing CP (Consistency over Availability): To prevent an application from consuming stale or conflicted data, the system will actively 在大范围/部分网络断开时拒绝服务 (reject incoming requests), returning errors or timing out. Systems like ZooKeeper or Etcd lean CP—他们选择牺牲可用性来保证强一致性。This is ideal for distributed locks or service coordination.
+Choosing AP (Availability over Consistency): Both isolated nodes will continue to accept writes and serve reads locally, accepting the fact that their data has temporarily drifted apart. Systems like Cassandra or Eureka lean AP, prioritizing high availability and relying on background conflict resolution to achieve eventual consistency. This is standard for feeds, shopping carts, or notification systems.
+
+
+13.2. write all SQL execise 
+sql query practice: PostgreSQL console
+
+create Employee(key, name, dept, age) and Department(key, name) Table
+insert some dummy data
+query the data
+Get only employee names and ages.
+Find employees older than 30.
+Find employees whose salary is greater than 80,000.
+List employees ordered by age (ascending).
+Get the top 3 highest-paid employees.
+Count total number of employees.
+Find the average salary of all employees.
+List employee name with department name.
+Find employees earning the highest salary.
+Find employees earning the second highest salary.
+Find employees earning the third highest salary.
+
+
+13.4. create .md file with all the sql practice
+Link: https://github.com/chenyuan9977/StudentManagementProjectCeline/blob/master/src/main/resources/hwSQL
+
