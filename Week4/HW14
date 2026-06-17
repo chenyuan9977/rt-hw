@@ -51,3 +51,22 @@ Saga provides eventual consistency and is more suitable for microservice archite
 In my microservice projects, we preferred Saga because it scales better and avoids the performance and availability issues associated with distributed locking.
 For example, in an order processing workflow involving Order Service, Payment Service, and Inventory Service, if payment failed, a compensation event would 
 release the reserved inventory and cancel the order.
+
+SQL practice: https://onecompiler.com/mysql/44skugg82 
+
+-- Find the average salary per department, only for employees older than30, 
+-- ordered by average salary descending order.  -> EXPLINA execution plan 
+SELECT 
+    d.deptName,
+    AVG(e.salary) AS avg_salary
+-- Step 1: Table Scan (Employee)
+FROM Employee e
+-- Step 3: Join Operation
+JOIN Department d
+    ON e.deptId = d.deptId
+-- Step 2: Filter (age > 30)
+WHERE e.age > 30
+-- Step 4: Group By (Aggregation Step)
+GROUP BY d.deptName
+-- Step 5: Sort
+ORDER BY avg_salary DESC;
