@@ -1,1 +1,53 @@
 
+1. What is an Index?
+An index is a database object that improves query performance by allowing the database to locate rows without scanning the entire table.
+In my projects, we usually create indexes on frequently searched columns, such as customer ID, email, order number, or foreign key columns. For example, 
+when querying orders by customer ID, adding an index significantly reduced query response time because the database no longer needed to perform a full 
+table scan.
+
+2. Clustered Index vs Non-Clustered Index
+A clustered index determines the physical order of data stored in a table. Since the data itself is stored according to the clustered index key, a table
+can have only one clustered index.
+A non-clustered index is a separate structure that stores indexed column values along with pointers to the actual data rows. Because it is separate from 
+the table data, a table can have multiple non-clustered indexes.
+In my projects, the primary key is usually implemented as a clustered index, while columns frequently used in filtering, sorting, or joining are often 
+configured as non-clustered indexes.
+
+3. What Data Structure is Used for an Index?
+Most relational databases use a B-Tree or B+ Tree data structure for indexes.
+The reason is that B+ Trees provide efficient search, insert, delete, and range query operations with logarithmic time complexity.
+In my experience, B+ Trees work especially well for range searches such as finding orders created within a specific date range because the leaf nodes are 
+linked sequentially.
+
+4. View vs Stored Procedure
+A view is a virtual table created from a SQL query. It does not store data itself but provides a simplified way to access data.
+A stored procedure is a collection of SQL statements and business logic stored inside the database that can accept parameters and execute complex operations.
+
+In my projects, I use views to simplify complex joins and provide a consistent data access layer for reporting. I use stored procedures when multiple SQL 
+operations need to be executed together or when database-side processing can improve performance.
+
+5. View vs Materialized View
+A view does not store data. Every time it is queried, the underlying SQL statement is executed.
+A materialized view stores the query result physically, so reads are much faster, but the data can become stale until it is refreshed.
+In one reporting project, we used materialized views for dashboard analytics because the underlying tables contained millions of records. Refreshing the 
+materialized view periodically allowed us to improve query performance significantly while keeping the data reasonably up to date.
+
+6. How Do You Tune a SQL Query?
+When tuning a SQL query, I usually follow several steps.
+First, I check the execution plan to identify bottlenecks such as full table scans, expensive joins, or missing indexes.
+Second, I verify that appropriate indexes exist on columns used in WHERE, JOIN, ORDER BY, and GROUP BY clauses.
+Third, I avoid using SELECT * and retrieve only the required columns.
+Fourth, I optimize joins and filtering conditions to reduce the amount of data processed.
+Finally, if the query still performs poorly, I consider partitioning large tables, using caching, or redesigning the data model.
+In one project, adding a composite index and removing unnecessary table scans reduced query execution time from several seconds to a few hundred milliseconds.
+
+
+7. Saga vs 2PC
+Both Saga and Two-Phase Commit are used to maintain consistency across distributed services, but they work differently.
+Two-Phase Commit uses a coordinator to ensure that all participating services either commit or roll back together. It provides strong consistency but can 
+become a bottleneck and reduce system availability.
+Saga breaks a distributed transaction into multiple local transactions. If one step fails, compensation actions are executed to undo previous completed steps.
+Saga provides eventual consistency and is more suitable for microservice architectures.
+In my microservice projects, we preferred Saga because it scales better and avoids the performance and availability issues associated with distributed locking.
+For example, in an order processing workflow involving Order Service, Payment Service, and Inventory Service, if payment failed, a compensation event would 
+release the reserved inventory and cancel the order.
