@@ -1,1 +1,95 @@
 
+**JDBC vs Hibernate**
+So JDBC is pretty low-level — you're writing raw SQL yourself, managing connections yourself, and when you get data back from the database you have to 
+manually pull each column out of the ResultSet and map it to your Java object. It gives you full control but there's a lot of repetitive boilerplate.
+Hibernate is an ORM that sits on top of JDBC and handles all of that for you — the SQL generation, the connection management, the object mapping. I 
+actually did this conversion in my project, going from Spring Data JPA down to raw JDBC and then to direct Hibernate, so I really saw the difference 
+firsthand. With JDBC I had to write a RowMapper and manually do rs.getString("first_name") for every field. With Hibernate you just put @Entity on the 
+class and it figures the rest out.
+
+**Statement vs PreparedStatement vs CallableStatement**
+Statement is the basic one where you just concatenate your SQL as a string — it works but it's dangerous because if user input gets into that string you're
+wide open to SQL injection, and it's also slower because the database has to parse it every time. PreparedStatement is what you actually want to use — you 
+write the SQL with question mark placeholders, the database compiles it once, and then you just plug in the values each time you run it. That's both faster 
+and safe. CallableStatement is specifically for stored procedures. In my JDBC implementation I used PreparedStatement for all the inserts and updates, and
+I also used a KeyHolder with it to capture the auto-generated ID that came back after an INSERT — that part was a bit tricky but it worked well.
+
+**How to prevent SQL injection**
+The number one thing is just never concatenate user input directly into a SQL string — that's where the vulnerability comes from. You use PreparedStatement
+with parameterized queries so the database always treats the input as data, never as SQL to execute. If you're using Hibernate or any ORM, it handles the 
+parameterization for you by default which is one of the nice safety benefits. Beyond that you want to validate inputs on the application side, apply 
+least-privilege database permissions so even if something goes wrong the damage is contained, and never expose detailed database error messages to the end 
+user because those can give attackers useful information.
+
+**What is ORM**
+ORM stands for Object-Relational Mapping. The basic problem is that relational databases think in tables and rows, and Java thinks in objects and classes —
+those two worlds don't naturally talk to each other. ORM is the bridge. You annotate your Java classes with things like @Entity and @Column, and the ORM 
+framework takes care of translating between your objects and the database rows automatically. So instead of writing INSERT INTO employees... you just call
+save() and it handles it. Hibernate is the most popular ORM in Java, and JPA is the standard specification that defines what an ORM in Java should look like.
+
+**JPA vs Hibernate**
+JPA is a specification — it defines the rules and the interfaces for how ORM should work in Java, but it doesn't actually do anything by itself. Hibernate 
+is the implementation that actually runs. A good way to think about it is JPA is like an interface in Java, and Hibernate is the class that implements it. 
+When I write @Entity or use EntityManager I'm coding against the JPA standard, but Hibernate is what's actually executing under the hood. Then Spring Data 
+JPA adds one more layer on top — it gives you JpaRepository so you don't even have to write EntityManager calls, you just call findAll() or save() and it's
+done.
+
+**Persistent States in Entity Lifecycle**
+There are four states and I actually think about them a lot when debugging Hibernate issues. Transient is when you've just done new Employee() — Hibernate
+doesn't know it exists, it's not tracked, it's not in the database. Persistent is when the entity is associated with an open session — this is the important
+one because Hibernate is watching it, and if you change any field it will automatically detect that and sync it to the database when the transaction commits,
+that's dirty checking. Detached is after the session closes — the object still has its data and its ID but Hibernate is no longer watching it. If you try to 
+use it in a new session you need to call merge() first. Removed means you called remove() on it — it's still in memory for now but it's scheduled to be 
+deleted when the transaction commits.
+
+**Mapping Relationships**
+@OneToOne is simple — one record maps to exactly one other, like a user and their profile. @OneToMany and @ManyToOne are probably the most common — like one 
+department having many employees. You always put @ManyToOne on the many side because that's where the foreign key column actually lives in the database. 
+@ManyToMany is where it gets more interesting — I built this in my Hibernate project with students and courses. A student can enroll in many courses, and 
+a course can have many students. Hibernate handles this by creating a join table in the middle, in my case students_courses with student_id and course_id.
+You define the join table on the owning side with @JoinTable, and on the other side you just write mappedBy to point back to the owning side.
+
+**Cascade Types**
+Cascade basically means "when I do something to the parent, automatically do the same thing to the children." PERSIST means save the parent, save the 
+children too. MERGE means merge the parent, merge the children. REMOVE means delete the parent, delete all the children — you want to be careful with that 
+one. ALL does everything. I actually ran into a real bug with this in my project. I had CascadeType.ALL on my @ManyToMany, and when two students shared the 
+same course object, saving the second student caused Hibernate to try to persist a course that was already saved — it threw a detached entity exception. 
+I ended up removing cascade from the relationship entirely and saving courses independently first, which fixed it.
+
+**Fetch Types**
+Fetch type controls when Hibernate actually goes to the database to load the related data. LAZY means it waits — it only loads the collection when you 
+actually touch it in code, and it's the default for collections. EAGER means it loads everything immediately with a JOIN when it loads the parent. LAZY 
+is generally better for performance, but there's a catch — if the session is already closed when you try to access the lazy collection, you get a 
+LazyInitializationException. I hit this exact issue in my Many-to-Many project. After findAll() the session closed, and when I looped through 
+student.getCourses() it blew up. I switched to EAGER to fix it quickly, but in a real production app you'd handle it with @Transactional or a specific fetch
+join query so you're not loading everything unnecessarily.
+
+**First and Second Level Cache*
+The first-level cache is built into every Hibernate Session and you don't have to do anything to enable it — it's always there. Within one session, if you 
+load the same entity by ID twice, Hibernate just returns the cached version the second time without hitting the database. It gets cleared automatically when
+the session closes. The second-level cache is optional and shared across all sessions — it lives at the SessionFactory level so it survives after individual
+transactions end. You have to explicitly configure it and pick a cache provider like Ehcache. It's most useful for reference data that's read a lot but 
+rarely changes, like lookup tables or configuration data — things where going to the database every time is wasteful.
+
+**Left Join vs Right Join vs Inner Join vs Full Outer Join vs Cross Join**
+INNER JOIN is the strictest — you only get rows where there's a match in both tables. No match, no row. LEFT JOIN gives you everything from the left table
+regardless, and where there's no match on the right side you just get NULLs. So if I join employees to departments with a left join, I get all employees
+including any who don't have a department yet. RIGHT JOIN is the mirror of that — all rows from the right table, NULLs where there's no match on the left. 
+FULL OUTER JOIN combines both sides — you get everything from both tables, with NULLs wherever there's no corresponding match. CROSS JOIN is the cartesian 
+product — every row from the left paired with every row from the right, no condition needed. It's not something you use often in practice but it comes up 
+if you need to generate all possible combinations of two sets.
+
+**UNION vs UNION ALL**
+Both stack the results of two SELECT queries on top of each other into one result set, and both require the same number of columns with compatible types.
+The difference is UNION removes duplicates — it does an internal sort and deduplication, which takes extra processing time. UNION ALL just gives you 
+everything as-is including duplicates, and because it skips that dedup step it's faster. My default is to reach for UNION ALL unless I have a specific 
+reason to remove duplicates, because at any meaningful scale the performance difference is real and most of the time if you're writing the queries correctly
+duplicates shouldn't show up anyway.
+
+
+
+Hibernate Project:
+	use hibernate to build a many to many relationship
+		students - courses
+	push code to github
+link: https://github.com/chenyuan9977/hibernate-many-to-many
