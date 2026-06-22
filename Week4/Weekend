@@ -1,1 +1,133 @@
 
+"1. Singleton -> Lazy loading + Eager Loading 
+   a. what's singleton 
+   b. Why singleton 
+   c. code implementation
+
+What is Singleton?
+Only one instance in JVM.  
+Provide a global access point.
+
+Why Singleton?
+- Save memory
+- Improve performance
+- Shared resource
+
+Lazy Loading — 用到时才创建
+public class SingletonLazy {
+    
+    // 1. 私有静态变量，初始为 null（不提前创建）
+    private static SingletonLazy instance = null;
+    
+    // 2. 私有构造器，外部无法 new
+    private SingletonLazy() {
+        System.out.println("Creating instance...");
+    }
+    
+    // 3. 全局访问点
+    public static SingletonLazy getInstance() {
+        if (instance == null) {          // 第一次调用才创建
+            instance = new SingletonLazy();
+        }
+        return instance;
+    }
+}
+
+// 使用
+SingletonLazy a = SingletonLazy.getInstance();  // "Creating instance..."
+SingletonLazy b = SingletonLazy.getInstance();  // 直接返回，不再创建
+System.out.println(a == b);  // true ✅
+
+
+
+🔒 Thread-Safe Lazy Loading — 双重检查锁（推荐）
+public class SingletonDoubleCheck {
+
+    // volatile 防止指令重排序（JVM 优化可能导致返回未初始化的对象）
+    private static volatile SingletonDoubleCheck instance = null;
+
+    private SingletonDoubleCheck() {}
+
+    public static SingletonDoubleCheck getInstance() {
+        if (instance == null) {                    // 第一次检查（无锁，快速路径）
+            synchronized (SingletonDoubleCheck.class) {  // 加锁
+                if (instance == null) {            // 第二次检查（锁内，安全）
+                    instance = new SingletonDoubleCheck();
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+为什么要检查两次？
+线程A              线程B
+───────────────    ───────────────
+instance == null   instance == null   ← 都通过第一次检查
+获得锁             等待锁...
+创建实例
+释放锁             获得锁
+                   instance != null   ← 第二次检查拦住了！
+                   直接返回
+
+⚡ Eager Loading — 类加载时立即创建
+public class SingletonEager {
+
+    // JVM 保证类加载时只执行一次，天然线程安全
+    private static final SingletonEager instance = new SingletonEager();
+
+    private SingletonEager() {}
+
+    public static SingletonEager getInstance() {
+        return instance;
+    }
+}
+
+
+
+
+2. research on Strategy Design Pattern 
+   a. what is 
+   b. why
+   c. how you implment in your project
+a. What is Strategy Pattern?
+Strategy is a behavioral design pattern that defines a family of algorithms, encapsulates each one into a separate class, and makes them interchangeable — without changing the client code that uses them.
+
+Core idea: Extract what varies, program to an interface, not an implementation.
+
+Real-world analogy: Navigation App
+
+Your destination stays the same (Context)
+But you can choose: Drive / Bike / Walk (Strategy)
+Switch anytime — the app still works perfectly
+
+b. Why Strategy Pattern?
+❌ Without Strategy — the problem
+javapublic class PaymentService {
+    public void pay(String type, double amount) {
+        if (type.equals("credit")) {
+            System.out.println("Paying " + amount + " via Credit Card");
+        } else if (type.equals("paypal")) {
+            System.out.println("Paying " + amount + " via PayPal");
+        } else if (type.equals("crypto")) {
+            System.out.println("Paying " + amount + " via Crypto");
+        }
+        // Adding a new method → modify this class → violates Open/Closed Principle ❌
+    }
+}
+ProblemDescriptionViolates Open/ClosedEvery new method requires modifying existing codeViolates Single ResponsibilityOne class handles all payment logicHard to testCan't unit test each payment type in isolationif-else explosionGets unmanageable as business grows
+✅ What Strategy solves
+
+Add new algorithm → add a new class, touch nothing else (Open/Closed Principle)
+Algorithms can be swapped at runtime dynamically
+Each strategy is independently testable
+Eliminates if-else / switch chains
+
+
+
+3. mock questions review + recording 
+  a. prepare script and included into .md file
+  b. recording the practice 
+  c. upload to S3
+  d. attach S3 link in .md file 
+  e. upload .md file to github HW repo. "
