@@ -1,0 +1,19 @@
+1. question list
+what is docker, dockerfile, docker image, docker container
+docker vs VM
+talk about how to use docker in real project
+check the following AWS Services and how to use them in project
+EC2
+ECS
+ECR
+RDS
+DocumentDB
+DynamoDB
+Lambda Function
+API gateway
+AWS Kinesis
+IAM
+SNS, SQS
+design online shopping system, only use aws services and draw the architecture
+
+2. Deploy the spring boot project on AWS(EC2 or ECS)
