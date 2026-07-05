@@ -1,0 +1,20 @@
+
+question list
+write unit test and integration test for your rewarding project
+TDD VS BDD VS DDD
+what is Junit
+what is Mockito
+how do you do the test for your application
+what tools do you use to do code qualify analysis
+Authentication vs Authorization
+Encryption vs Hashing vs Encoding
+how do you secure your application
+what is JWT
+what is the OAuth2 
+
+
+CICD pipeline integration with SonarQube
+Integrate JaCoCo into the project to measure unit test coverage
+Integrate SonarQube into the CI/CD pipeline for automated code quality checks
+Unit test coverage must reach 90% or above
+Write JUnit 5 unit tests, mirroring the same structure as the source code directory
