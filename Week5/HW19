@@ -1,0 +1,52 @@
+Build Your Virtual Agile Team
+You learned about the Agile SDE lifecycle today. Tonight, design a fictional Agile team for a software product of your choice.
+Pick a product first — one sentence, what are you building and who is it for?
+
+Your Team Setup
+How many people are on your team and why?
+List every team member — name, title, and one-line responsibility
+Who is your Product Owner and what do they do day to day?
+Who is your Scrum Master and how are they different from a project manager?
+How many engineers do you have and how are they split (frontend / backend / fullstack)?
+Do you have a QA engineer? Is testing their job alone or does the whole team own quality?
+Who handles deployments and infrastructure on your team?
+Do you have a designer? Where do they fit in the sprint cycle?
+
+How Your Team Works
+How long are your sprints and why did you choose that length?
+Walk me through what happens during Sprint Planning
+What does your Daily Standup look like — format, duration, who runs it?
+What is a Sprint Review and who attends yours?
+What is a Retrospective and what does your team actually do in it?
+What is Backlog Refinement and when does your team do it?
+What is your team's Definition of Done?
+
+Communication & Escalation
+You found a critical bug two days before release — what do you do and who do you tell?
+A stakeholder wants to add a feature mid-sprint — how does your team handle it?
+You are blocked on a ticket and cannot finish before the sprint ends — who do you talk to?
+Two engineers disagree on a technical approach — how is that resolved on your team?
+The designer is out sick and you need assets to move forward — what do you do?
+Your deployment pipeline breaks and blocks the whole team — who owns that problem?
+
+Documentation & Artifacts
+What is a Product Backlog and who owns it on your team?
+What is a Sprint Backlog and how does it get created?
+When does your team write a technical design doc and who has to approve it?
+How does your team file and track bugs?
+Where does your team write things down — what tools do you use and why?
+
+Bigger Picture
+How does your team decide what goes into the next sprint?
+What happens if your team consistently doesn't finish sprint work?
+How does a brand new feature go from idea to production on your team?
+If someone asked you in an interview "describe your team" — what would you say in 60 seconds?
+
+Deliverable
+Write a script that contains three parts:
+Part 1 — Team Map
+ Draw or describe a diagram that shows every team member and how they relate to each other. Show who reports to whom, who collaborates closely, and who is the go-to person for different types of problems. This can be a hand-drawn diagram, a simple text tree, or any visual format you prefer.
+Part 2 — A Day in the Life
+ Write a narrative that walks through a typical day on your team. Start from the morning standup and take us through the rest of the day. Who talks to who, what gets worked on, what tools are being used, what problems come up and how they get handled. Write it like a story, in first person, as if you are an engineer on this team living that day.
+Part 3 — Interview Q&A
+ Answer all 30 questions above as if you are being interviewed about your real team. Write in first person ("My team has...", "I would go to...", "We use...") and make every answer sound like something you would actually say out loud in an interview, not a bullet point list. Your answers across all 30 questions must be consistent — same team, same product, same people.
