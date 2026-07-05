@@ -16,4 +16,72 @@ IAM
 SNS, SQS
 design online shopping system, only use aws services and draw the architecture
 
+Docker Fundamentals
+Docker – a platform that packages an application with everything it needs (code, runtime, libraries, system tools, settings) into a standardized unit called a container, so it runs identically anywhere (laptop, test server, cloud).
+Dockerfile – a text file containing step-by-step instructions to build a Docker image (e.g. FROM, COPY, RUN, EXPOSE, CMD). Think of it as the "recipe."
+Docker Image – a read-only, immutable template built from a Dockerfile. It contains the app code + dependencies + OS libraries, layered for efficiency. Think of it as the "class."
+Docker Container – a running instance of an image, with its own isolated filesystem, network, and process space, plus a writable layer on top. Think of it as the "object" (instance of the class).
+Flow: Dockerfile → (docker build) → Image → (docker run) → Container
+
+Docker vs VM
+Docker (Container)Virtual MachineVirtualizesOS-level (shares host kernel)Hardware (via hypervisor)OSNo guest OS — uses host kernelFull guest OS per VMSizeMBsGBsStartup timeSecondsMinutesIsolationProcess-level (weaker)Full OS-level (stronger)Resource overheadLowHighPortabilityVery highModerateUse caseMicroservices, CI/CD, fast scalingFull OS isolation, legacy apps, multi-OS needs
+In short: VMs virtualize a whole computer; containers virtualize just the app layer, sharing the host's kernel — that's why they're so much lighter and faster.
+
+Using Docker in a Real Project
+
+Local development – Write a Dockerfile per service; use docker-compose.yml to spin up the whole stack (app + DB + cache) with one command, so every dev has an identical environment.
+Version control for images – Tag images with commit SHA or semantic version (myapp:1.2.0), never rely on latest in production.
+CI/CD pipeline – On each merge: build image → run unit/integration tests inside a container → push image to a registry (ECR/Docker Hub) → trigger deployment.
+Registry – Store built images in a private registry (e.g., AWS ECR) so orchestration platforms can pull them.
+Orchestration/deployment – Deploy containers via ECS, EKS (Kubernetes), or Docker Swarm; define scaling rules, health checks, rolling updates.
+Microservices – Each service (auth, orders, payments) gets its own image/container, independently deployable and scalable.
+Config & secrets – Inject environment variables/secrets at runtime (not baked into the image) via ECS task definitions or Kubernetes secrets.
+Monitoring – Centralize logs/metrics from containers (CloudWatch, Prometheus/Grafana).
+
+
+AWS Services and Real-Project Usage
+
+EC2 – Resizable virtual servers. Use for hosting apps/backends that need full OS control; combine with Auto Scaling Groups + an Application Load Balancer for elastic web tiers.
+ECS (Elastic Container Service) – Orchestrates and runs Docker containers at scale (Fargate = serverless, no server management; EC2 launch type = you manage the instances). Define task definitions and services; used to run microservices in production.
+ECR (Elastic Container Registry) – Private Docker image registry. CI/CD pipeline does docker push to ECR after build; ECS/EKS pulls from ECR to deploy.
+RDS – Managed relational database (MySQL/PostgreSQL/etc.) with automated backups, patching, and Multi-AZ failover. Use for structured, transactional data needing ACID (e.g., orders, payments, users).
+DocumentDB – Managed, MongoDB-compatible document database. Use for semi-structured JSON-like data (e.g., product catalogs with varying attributes).
+DynamoDB – Fully managed, serverless NoSQL key-value/document store with single-digit-millisecond latency at any scale. Use for high-throughput, low-latency data like shopping carts, sessions, user preferences.
+Lambda – Serverless functions triggered by events (API call, file upload, queue message). No server management, pay per invocation. Great for event-driven logic: image resizing, order-confirmation processing, API backends.
+API Gateway – Managed front door for APIs; routes HTTP requests to Lambda/EC2/ECS, handles auth, throttling, request validation, and versioning.
+Kinesis – Real-time streaming data ingestion/processing (clickstreams, logs, IoT, order events) at scale; often paired with Lambda or Kinesis Data Analytics/Firehose to process/store the stream.
+IAM – Manages users, roles, and policies controlling who/what can access which AWS resources — apply least-privilege permissions everywhere (e.g., a Lambda's execution role only gets access to the specific DynamoDB table it needs).
+SNS – Pub/Sub notification service; one message fanned out to many subscribers (email, SMS, Lambda, SQS) — e.g., broadcast "order placed" event to multiple downstream consumers.
+SQS – Managed message queue that decouples producers and consumers (e.g., order service pushes to a queue, inventory service consumes asynchronously) — smooths out traffic spikes and adds resiliency.
+
+
+Online Shopping System — AWS-Only ArchitectureHere's the architecture:
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.25s;
+    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+  }
+VvisualizeVvisualize show_widgetHow it works, end to end:
+
+Client (web/mobile) hits CloudFront, which serves cached static assets from S3 and forwards /api/* calls to API Gateway.
+API Gateway routes requests to four independent Lambda microservices — Users, Products, Cart, Orders — a clean serverless microservices split, no server management needed.
+Each service owns its own datastore (database-per-service pattern):
+
+Users → RDS (relational, needs consistency for accounts/auth data)
+Products → DocumentDB (flexible schema for varying product attributes)
+Cart → DynamoDB (low-latency key-value, high read/write throughput, TTL for expiring carts)
+Orders → RDS (needs ACID transactions for financial/order integrity)
+
+
+When an order is placed, the Orders service pushes a message to SQS instead of processing it inline — this decouples the request from slower downstream work (inventory checks, payment confirmation) and smooths out traffic spikes.
+An Order worker Lambda consumes the queue and does the actual processing, then publishes to SNS, which fans the event out to email/SMS/push notification subscribers.
+
+Services used but not drawn as boxes (cross-cutting, not really a "step" in the request path):
+
+ECR stores container images if any service is deployed on ECS/Fargate instead of Lambda (common for the Order worker if it needs longer execution time or more compute than Lambda's limits allow).
+EC2 could sit behind an ALB for any service you choose not to run serverless.
+IAM governs every arrow in the diagram — each Lambda gets an execution role scoped only to the specific table/queue/topic it needs (least privilege).
+Kinesis would tap the API Gateway/client layer to stream clickstream and order events into an analytics pipeline (S3 + Athena/Redshift) for business intelligence, separate from the transactional path shown.
+
 2. Deploy the spring boot project on AWS(EC2 or ECS)
