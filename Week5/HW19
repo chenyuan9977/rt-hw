@@ -42,6 +42,152 @@ What happens if your team consistently doesn't finish sprint work?
 How does a brand new feature go from idea to production on your team?
 If someone asked you in an interview "describe your team" — what would you say in 60 seconds?
 
+#Product
+
+I'm building TeamSync — a lightweight project management and async-communication tool for small remote teams (5–20 people), designed to give small teams a simple, affordable way to run Agile tracking without the overhead of heavyweight enterprise tools like Jira.
+
+#Your Team Setup
+
+Team size and why
+
+The team has 13 people. This size is deliberate — enough engineering capacity to run 2–3 parallel workstreams (frontend features, backend/API, infrastructure) at once, while still small enough for a single Scrum Master to fully cover without splitting into multiple pods. It also has full cross-functional coverage (design, QA, DevOps) so the team can ship independently without waiting on external teams' schedules.
+
+Team roster
+
+
+Sarah Chen — Product Owner — owns product vision and backlog prioritization
+Marcus Johnson — Scrum Master — facilitates Agile ceremonies and removes blockers
+David Kim — Tech Lead / Engineering Manager — makes architecture decisions and mentors engineers
+Emily Rodriguez — Frontend Engineer — builds and maintains the React web client
+Jason Park — Frontend Engineer — builds UI components and handles frontend performance
+Ahmed Hassan — Backend Engineer — owns core API and business logic
+Lisa Wang — Backend Engineer — owns database design and the data layer
+Carlos Mendez — Backend Engineer — owns integrations (Slack, calendar, email)
+Nina Petrova — Fullstack Engineer — bridges frontend and backend for cross-cutting features
+Tom Anderson — Fullstack Engineer — works on notifications and real-time features
+Rachel Kim — QA Engineer — owns test strategy and automation
+Michael Brown — DevOps Engineer — owns CI/CD pipeline and AWS infrastructure
+Sophia Lee — UX/UI Designer — owns user research and design specs
+
+
+Product Owner's day-to-day
+
+Sarah spends her day writing and prioritizing backlog items, talking to customers and stakeholders about needs, defining acceptance criteria, attending Sprint Planning and Sprint Review, and deciding what ships next based on business value. She doesn't write code, but she owns final responsibility for what gets built and why.
+
+Scrum Master vs Project Manager
+
+Marcus doesn't tell the team what to build, nor does he manage a project timeline top-down like a traditional PM. His job is to facilitate the Agile ceremonies, remove blockers the team runs into, shield the team from external interruptions during the sprint, and coach the team on better Agile practices. The key difference: he has no authority over what goes in the backlog (that's Sarah's call), and he doesn't assign tasks to individuals — the team self-organizes.
+
+Engineer count and split
+
+Excluding the Tech Lead (who also codes roughly half the time), there are 7 engineers: 2 frontend, 3 backend, 2 fullstack. Backend gets more headcount because most of the complexity lives in the API/data layer and third-party integrations; the fullstack engineers float to whichever side needs help in a given sprint.
+
+QA and quality ownership
+
+Yes, Rachel Kim is a dedicated QA engineer. But testing isn't her job alone — engineers write their own unit tests, and Rachel focuses on integration/E2E test automation plus exploratory testing before release. Test coverage is part of the whole team's Definition of Done, so quality is a shared responsibility, not QA's alone.
+
+Deployments and infrastructure
+
+Michael Brown (DevOps) owns the CI/CD pipeline, AWS infrastructure, and monitoring. But any engineer can self-serve deploy through the pipeline — Michael owns the system, he's not a gatekeeper for every individual deploy.
+
+Designer and where she fits in the sprint cycle
+
+Yes, Sophia Lee. She works one sprint ahead of engineering — she designs and gets sign-off during the sprint before implementation starts, so by the time engineering does Sprint Planning, the specs and assets are already ready.
+
+How Your Team Works
+
+Sprint length
+
+Two-week sprints. This length is chosen because the product changes fast enough that a monthly sprint would feel stale, but daily or weekly ceremonies would be too much overhead for a team this size. Two weeks is enough time to deliver a meaningful feature slice while keeping estimates accurate.
+
+Sprint Planning walkthrough
+
+Sarah presents the top-ranked backlog items along with acceptance criteria; the team discusses and estimates effort using planning poker/story points; engineers pull work based on their capacity; the session ends with everyone agreeing on a Sprint Goal.
+
+Daily Standup
+
+15 minutes, same time every day, kept async-friendly since some team members are remote; format is "what I did yesterday / what I'm doing today / any blockers." The Scrum Master runs it and parks side conversations for after standup rather than letting them eat into the 15 minutes.
+
+Sprint Review
+
+A demo of the work completed in the sprint, presented to stakeholders (PO, Tech Lead, and sometimes customers). The team shows working software and gathers feedback. Attendees: the whole team + PO + customers/stakeholders when available.
+
+Retrospective
+
+Team-only, no external stakeholders. We discuss what went well, what didn't, and action items. Format is start-stop-continue, facilitated by the Scrum Master. The team picks 1–2 concrete action items to carry into the next sprint — it's not just a venting session.
+
+Backlog Refinement
+
+Weekly, held mid-sprint, roughly one hour. The PO, Tech Lead, and a few engineers review upcoming backlog items, break down large stories, add acceptance criteria, and do preliminary estimation.
+
+Definition of Done
+
+Code reviewed and merged, unit tests written and passing, deployed to staging, QA sign-off obtained, no open P0/P1 bugs, and documentation updated if applicable.
+
+Communication & Escalation
+
+Critical bug found two days before release
+
+Stop immediately and assess severity and impact, then tell the Tech Lead and Scrum Master right away, and decide together whether to fix-forward or delay the release. The PO is informed too since it affects the release date. If the fix is small, hotfix and retest; if the bug is severe, recommend delaying the release rather than shipping broken software.
+
+Stakeholder wants to add a feature mid-sprint
+
+The Scrum Master protects sprint scope — the new request goes to the PO, who adds it to the backlog for the next sprint (unless it's a genuine emergency). The team doesn't silently absorb scope creep mid-sprint.
+
+Blocked on a ticket and can't finish before sprint ends
+
+Raise the blocker immediately in standup or directly to the Scrum Master — don't wait until the sprint is almost over. The Scrum Master helps unblock it (getting access, escalating a dependency); if it genuinely can't be resolved in time, the ticket rolls over to the next sprint.
+
+Two engineers disagree on a technical approach
+
+They discuss it directly first; if unresolved, it goes to the Tech Lead (David) for a final call, or they write a quick technical proposal doc to get team consensus. This is timeboxed so the disagreement doesn't stall the sprint indefinitely.
+
+Designer is out sick and you need assets to move forward
+
+First check if Sophia left completed assets or specs in Figma. If not, engineers proceed with a best-guess or placeholder design following the existing design system, and flag it as design debt to reconcile once she's back. We don't let the whole sprint block on a single dependency.
+
+Deployment pipeline breaks and blocks the whole team
+
+Michael Brown (DevOps) owns fixing it since he owns the infrastructure. Because it blocks everyone, the team escalates priority immediately; if it's urgent, the Tech Lead may pull in another engineer to help him.
+
+Documentation & Artifacts
+
+Product Backlog
+
+Owned and maintained by the PO (Sarah) — it's the full, prioritized list of all future work (features, bugs, tech debt), ranked by business value.
+
+Sprint Backlog
+
+A subset of the Product Backlog items committed to the current sprint, created during Sprint Planning when the whole team pulls in items based on their capacity.
+
+Technical design doc
+
+Written for any feature touching architecture, spanning multiple services, or carrying significant complexity. The Tech Lead (David) reviews and approves it before implementation starts, to catch design issues early.
+
+Bug tracking
+
+Filed in Jira with severity and priority labels, triaged either in daily standup or a dedicated bug-triage session, and linked into the sprint backlog if it needs fixing this sprint.
+
+Where the team writes things down
+
+Jira for backlog and sprint tracking (structured, integrates well with dev tools); Confluence for technical design docs and the team wiki (suited for long-form documentation); Slack for day-to-day communication (async-friendly for a remote team); Figma for design specs.
+
+Bigger Picture
+
+How the team decides what goes into the next sprint
+
+The PO prioritizes the backlog by business value/customer impact, the team refines and estimates items during Backlog Refinement, and then during Sprint Planning the team pulls in the top-ranked items based on capacity and historical velocity.
+
+If the team consistently doesn't finish sprint work
+
+Look at the root cause in the retro — is scope too large, are estimates wrong, or are there too many interruptions? Adjust accordingly: commit to less, fix a recurring blocker, or push back on interruptions. Working overtime isn't the fix.
+
+How a new feature goes from idea to production
+
+The PO writes it up in the backlog with acceptance criteria → it's refined and estimated in Backlog Refinement → picked up during Sprint Planning → design (if needed) → build → code review → QA testing → deploy to staging → demoed in Sprint Review → deploy to production.
+
+We're a 13-person cross-functional Agile team building TeamSync, a lightweight project management tool for small remote teams. We run two-week sprints, with a Product Owner setting priorities, a Scrum Master keeping us unblocked, a Tech Lead making architecture calls, seven engineers split across frontend, backend, and fullstack, a dedicated QA engineer, a DevOps engineer owning our AWS pipeline, and a designer working one sprint ahead of engineering. We ship every two weeks, demo to stakeholders, and constantly tune our process through retros — quality is something the whole team owns, not just QA.
+
 Deliverable
 Write a script that contains three parts:
 Part 1 — Team Map
